@@ -5,14 +5,14 @@ import React,{useContext,} from 'react'
 import {ProductContext} from '../Context/Contextcontent'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import * as DocumentPicker from "expo-document-picker"; 
+import Toast from 'react-native-toast-message'
 const StoreHeader = ()=>{
     const {themes,fetchData} = useContext(ProductContext)
   const folderUri = FileSystem.documentDirectory;
-  
+   const files = ["product.json","sale.json"]; // jitni files aap rakhte ho
   const FileExportHandler = async ()=>{
      try {    
-      // const filinfo = await FileSystem.readDirectoryAsync(folderUri) 
-        const files = ["product.json","sale.json"]; // jitni files aap rakhte ho
+      // const filinfo = await FileSystem.readDirectoryAsync(folderUri)  
       for (let file of files) {
       const filePath = folderUri + file;
       const fileInfo = await FileSystem.getInfoAsync(filePath); 
@@ -31,22 +31,20 @@ const StoreHeader = ()=>{
   const FileImportHandler = async ()=>{ 
     try {
      
-       const folderInfo = await FileSystem.getInfoAsync(folderUri); 
-     if (!folderInfo.exists) {
-      await FileSystem.makeDirectoryAsync(folderUri, { intermediates: true });
-      console.log("Folder created:", folderUri);
-    }
-    
-     const result = await DocumentPicker.getDocumentAsync({ type: "application/json" }); 
+    const result = await DocumentPicker.getDocumentAsync({ type: "application/json" }); 
       if (!result.canceled) {
     const file = result.assets[0]; // pehla selected file
     const sourceUri = file.uri;
     const destUri = folderUri + file.name; // same  
-    
+    if (!files.includes(file.name)){
+      Toast.show({type:'error',text1:'Import Right files (product.json and sale.json)'})
+      return false
+    }
+     
     const content = await FileSystem.readAsStringAsync(sourceUri); 
     await FileSystem.writeAsStringAsync(destUri, content);  
     alert(file.name+' File Imported Successfull')
-   fetchData()
+  fetchData()
     } else {
     console.log("User canceled import");
     } 
