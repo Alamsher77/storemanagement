@@ -7,7 +7,7 @@ const htmlContent = ({bill,localUserData,qrImage})=>{
  const totalQuantity = bill?.products?.reduce((prev,nex)=>{return prev + Number(nex?.quantity)},0)
  
  const words = numberToWords.toWords(bill?.totalAmount)
-  const localImg = Image.resolveAssetSource(require("../assetes/logo.png")).uri;
+  const localImg = Image.resolveAssetSource(require("../assetes/storelogo.png")).uri;
  
    
 return (`
@@ -36,19 +36,13 @@ return (`
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     header {
-      display: flex;
-      justify-content: space-between;
+      display: flex; 
       align-items: center;
       border-bottom: 3px solid #ff6600;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-    }
-    header h1 {
-      font-size: 24px;
-      color: #222;
-    }
-    header img {
-      max-height: 50px;
+      padding-bottom: 10px; 
+    } 
+    header img { 
+    max-height:100px;
     }
     .invoice-details {
       display: flex;
@@ -119,9 +113,19 @@ return (`
 </head>
 <body>
   <div class="invoice-box">
-    <header>
-      <img src="${localImg}"    width="50" alt="Logo"> 
-      <h1 style="text-transform:uppercase;">${localUserData ? localUserData?.beusnessName : 'Store Managment'}</h1> 
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">
+    <p style="font-weight:bolder;color:black;">BILL OF SUPPLY</p>
+    <p style="border:solid 2px gray; padding:2px 4px;color:gray;font-weight:bolder;border-radius:3px;font-size:14px">ORIGINAL</p>
+    </div>
+    <header> 
+      <img src="${localImg}"    alt="Logo">
+      <div>
+       <h3 style="color:#ff6600">${localUserData?.beusnessName}</h3>
+       <p>Address : Adhouri-more, Rajhara, Ward-No 4, Meral, Garhwa, Jharkhand, 822114</p>
+       <p>Phone : ${localUserData?.phone}</p>
+       <p>Email : alamsheransari15@gmail.com</p>
+       <p>Website : https://easyshopemart.netlify.app/</p>
+      </div>
     </header>
 
     <div class="invoice-details"> 
@@ -172,7 +176,7 @@ return (`
     </div>
     <div class="totals"> 
       <h3>Total: ${Currancy(bill?.totalAmount)}</h3>
-      <h4 style="text-transform:capitalize">Total Amount (in words): ${words} Ruppese</h4>
+      <h4 style="text-transform:capitalize">Total Amount (in words): ${words} Rupees</h4>
     </div>
    <div style="display:flex;justify-content:space-between">
     <div>
