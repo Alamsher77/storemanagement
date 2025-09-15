@@ -98,7 +98,7 @@ export default function MainPage() {
           <View style={{ top: 200, left: 200, position: 'absolute', width: 12, height: 12, backgroundColor: Colors.mainColor, outlineWidth: 6, outlineColor: '#fff', borderRadius: 50 }} />
         </LinearGradient>
         <View style={{ marginTop: 30, flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
-          <ProductModelData  percentChange={5} quantity={itemsRecords?.length} icons={<Ionicons name="cube" size={25} color={Colors.mainColor} />} header="Total Products" />
+          <ProductModelData onPress={()=> router.navigate('TotalProduct')} percentChange={5} quantity={itemsRecords?.length} icons={<Ionicons name="cube" size={25} color={Colors.mainColor} />} header="Total Products" />
           <ProductModelData percentChange={65}  quantity={productCategory?.length} icons={<Octicons name="apps" size={23} color={Colors.mainColor} />} header="Product Category" />
           <ProductModelData percentChange={-23}  onPress={()=> router.navigate('TotalSold')} quantity={SaleRecords?.length} icons={<Ionicons name="receipt-sharp" size={25} color={Colors.mainColor} />} header="Total Sold" />
           <ProductModelData percentChange={monthlySaleData?.percentChange}  quantity={monthlySaleData?.totalIncome} icons={<MaterialIcons name="currency-rupee" size={25} color={Colors.mainColor} />} header="Monthly income" />

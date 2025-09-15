@@ -138,7 +138,7 @@ const prevMotheTotal = prevMotheSale.reduce((sum, s) => sum + Number(s.totalInco
 // Percent change
 let percentChange = 0;
 if (prevMotheTotal > 0) {
-  percentChange = ((currentMotheTotal - prevMotheTotal) / prevMotheTotal) * 100;
+  percentChange = (((currentMotheTotal - prevMotheTotal) / prevMotheTotal) * 100).toFixed(2);
 } 
 
 const monthlySaleData = {totalMonths, monthlyIncome,percentChange,totalIncome}; 
