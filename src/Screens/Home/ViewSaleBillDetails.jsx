@@ -29,12 +29,13 @@ const ViewSaleBillDetails = ()=>{
     }
   }, []);
   
+  const htmlcontentData = htmlContent({bill,localUserData,qrImage})
   // const print mobile thermal
   const PrintUsingMobile = async()=>{
        // 1. Init printer module
        try { 
     if (bill && localUserData && qrImage) {
-       const { uri } = await Print.printToFileAsync({html:htmlContent({bill,localUserData,qrImage}),baseUrl:''});
+       const { uri } = await Print.printToFileAsync({html:htmlcontentData,baseUrl:''});
   
   const newUri = FileSystem.documentDirectory + bill?.customerName.split(" ").join("").toLowerCase()+".pdf"
    
@@ -67,10 +68,15 @@ const ViewSaleBillDetails = ()=>{
       />
       }
         
+        {
+        htmlcontentData ?  
+        
         <WebView
         
-          source={{html:htmlContent({bill,localUserData,qrImage}),baseUrl:''}} style={{ height:ScreenHeight - 200}} />
-        
+          source={{html:htmlcontentData,baseUrl:''}} style={{ height:ScreenHeight - 200}} />
+          :
+            <Text style={{color:themes.mainColor,fontSize:12,fontWeight:'800'}}>Loading...</Text>
+        }
         <View style={{paddingBottom:30,backgroundColor:themes.theme.backgroundTheme,}}>
           <View style={{flexDirection:'row',justifyContent:"space-between",paddingHorizontal:4}}>
           <View style={{justifyContent:'center',alignItems:'center'}}>

@@ -1,7 +1,8 @@
 import {
   View,
   Text,
-  TouchableOpacity
+  TouchableOpacity,
+  StyleSheet,
 } from 'react-native'
 import React,{useContext} from 'react'
 import {WebView} from 'react-native-webview'
@@ -10,14 +11,17 @@ import Currancy from '../../Currancy'
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
+import FontAwesome from 'react-native-vector-icons/FontAwesome' 
+import AntDesign from 'react-native-vector-icons/AntDesign' 
 export default function TotalProduct() {
 const {themes,itemsRecords} = useContext(ProductContext)
+
+const filterProductData = itemsRecords.filter((items)=> (items?.stock <= 0))
   const htmlContent = `
   <!DOCTYPE html>
   <html lang="en">
   <head>
   <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>List Of Product</title>
   <style>
   *{
@@ -28,12 +32,15 @@ const {themes,itemsRecords} = useContext(ProductContext)
   </style>
   </head>
   <body>
-    <div style="margin:auto;width:100vh;text-align:center;margin-top:20px;">
+    <div style="margin:auto;width:100%;text-align:center;margin-top:20px;">
       <h3 style="font-size:30px;color:${themes.mainColor}">Product List </h3>
      <div style="display:flex;gap:30px;margin-top:20px;justify-content:center;">
         ${
-          itemsRecords && itemsRecords?.length !== 0 && itemsRecords?.map((items,index)=>{ 
-            return `${index == 0 ? '<div style="text-align:start;">' :  index == Math.floor(itemsRecords.length / 2 ) + 1  ? '<div style="text-align:start;">' : ''} <div style="display:flex;justify-content:space-between;gap:20px;">  <p>${index + 1} ${items?.name}</p>
+          filterProductData && filterProductData?.length == 0 ?
+          "<h1>no records found</h1>"
+          :
+          filterProductData?.map((items,index)=>{ 
+            return `${index == 0 ? '<div style="text-align:start;">' :  index == Math.floor(filterProductData.length / 2 ) + 1  ? '<div style="text-align:start;">' : ''} <div style="display:flex;justify-content:space-between;gap:20px;">  <p>${index + 1} ${items?.name}</p>
                <p>${Currancy(items?.salePrice)}</p>
             </div> ${index == Math.floor(itemsRecords.length / 2 ) ? '</div>' : index == itemsRecords.length -1 ? '</div>' :'' }`
           }).join('')
@@ -66,11 +73,35 @@ const {themes,itemsRecords} = useContext(ProductContext)
   return ( 
     <>
        <WebView style={{flex:0.80}} source={{html:htmlContent,baseUrl:''}} /> 
-       <View style={{paddingBottom:20}} >
-          <TouchableOpacity onPress={PrintData}>
-           <Text>Share</Text>
-          </TouchableOpacity>
+       <View style={[styles.printcontainer,{backgroundColor:themes.theme.backgroundTheme,paddingVertical:8,paddingBottom:20
+       }]}>
+            <TouchableOpacity  style={[styles.printitems,{backgroundColor:themes.mainColor,shadowColor:themes.theme.color,borderColor:themes.theme.color}]}>
+            <AntDesign color={'#fff'} size={25} name="printer" />
+            </TouchableOpacity> 
+            <TouchableOpacity style={[styles.printitems,{backgroundColor:themes.mainColor,shadowColor:themes.theme.color,borderColor:themes.theme.color}]}>
+            <AntDesign color={'#fff'} size={25} name="download" />
+            </TouchableOpacity> 
+            <TouchableOpacity onPress={PrintData} style={[styles.printitems,{backgroundColor:themes.mainColor,shadowColor:themes.theme.color,borderColor:themes.theme.color}]}>
+            <FontAwesome color={'#fff'} size={25} name="share" />
+            </TouchableOpacity> 
+         
        </View>
     </> 
   )
 }
+
+const styles = StyleSheet.create({
+  printcontainer:{
+    flexDirection:'row',
+    paddingHorizontal:8,
+    justifyContent:'space-around',
+    marginTop:12, 
+  },
+  printitems:{
+    borderWidth:1, 
+    paddingHorizontal:6,
+    paddingVertical:4,
+    borderRadius:6,
+    elevation:6
+  }
+})

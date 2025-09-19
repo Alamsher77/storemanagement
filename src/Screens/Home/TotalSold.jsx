@@ -1,4 +1,4 @@
-import { View, Text,useColorScheme,StyleSheet,Pressable,TextInput,Dimensions,Animated} from 'react-native'
+import { View, Text,useColorScheme,StyleSheet,Pressable,TextInput,Dimensions,Animated,FlatList} from 'react-native'
 import React,{useState,useRef,useContext} from 'react'
 import ScrollContainer from '../../component/ScrollContainer'
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6'
@@ -35,7 +35,7 @@ export default function TotalSold({navigation}) {
     }).start();
      setIsUp(!isUp); // state toggle
    }
-  const heightDecreeseAndIncrees = ()=>{
+   const heightDecreeseAndIncrees = ()=>{
      Animated.timing(animatedPosition, {
       toValue: isUp  ? 50 : ScreenHeight * 0.7, // agar upar hai to neeche, agar neeche hai to upar
       duration: 500,
@@ -149,8 +149,11 @@ export default function TotalSold({navigation}) {
     }
    
   } 
+  
+  const TotalSaleAmount = SaleRecords.reduce((prev,next) => prev + Number(next.totalAmount),0)
+ 
   return (
-    <>
+    <View style={{backgroundColor:themes.theme.backgroundTheme,position:'relative',flex:1,paddingHorizontal:8}}>
       <View style={[styles.header,{borderColor:themes.theme.color}]}>
       <Pressable onPress={()=>navigation.goBack()}>
         <FontAwesome6 size={20} color={"#fff"} name="arrow-left" />
@@ -176,21 +179,49 @@ export default function TotalSold({navigation}) {
         </View>
         </View>
       </View> 
-      <ScrollContainer style={{gap:4,paddingBottom:280}} > 
+     
          {
             searchProduct ?
-            searchProduct?.map((items,index)=>{
-            const quantitydata = SaleProductItems.find((p)=>  p.id == items.id) 
-              return(<ProductList quantitydata={quantitydata} QuantityDecreese={QuantityDecreese} QuantityIncreese={QuantityIncreese} key={index} items={items} />)
-            })
-            
+            searchProduct.length == 0 ?
+             <Text style={{color:themes.theme.color}}>No Records</Text>
+            :
+              <FlatList 
+        data={searchProduct}
+        vertical
+        showsVerticalScrollIndicator={false}
+        renderItem={({item})=>{ 
+        const quantitydata = SaleProductItems.find((p)=>  p.id == item.id) 
+              return(<ProductList quantitydata={quantitydata} QuantityDecreese={QuantityDecreese} QuantityIncreese={QuantityIncreese} items={item} />)
+        }} 
+         contentContainerStyle={{gap:4}}
+         keyExtractor={(item, index) => index.toString()}
+        initialNumToRender={10}
+          windowSize={5}
+          removeClippedSubviews={true}
+     /> 
+        
             :
             SaleRecords &&
-            SaleRecords?.map((items,index)=>{
-              return <CustomerBillRecords index={index} items={items} key={index}/>
-            })
+        <>
+        <View style={{flexDirection:'row',justifyContent:'space-between',paddingHorizontal:10,paddingVertical:4}}>
+      <Text style={{color:themes.theme.color}}>Total Sale : {SaleRecords.length}</Text>
+         <Text style={{color:themes.theme.color}}>Total Sale Amount : {Currancy(TotalSaleAmount)}</Text>
+        </View>
+               <FlatList 
+        data={SaleRecords}
+        vertical
+        showsVerticalScrollIndicator={false}
+        renderItem={({item,index})=>(
+        <CustomerBillRecords  items={item} index={index}/>)} 
+         contentContainerStyle={{gap:4}}
+         keyExtractor={(item, index) => index.toString()}
+        initialNumToRender={10}
+          windowSize={5}
+          removeClippedSubviews={true}
+      /> 
+          </>
           }
-      </ScrollContainer>
+
       {/* this component for create bill model */}
       
       <Animated.View  style={[styles.billModel,{backgroundColor:themes.theme.backgroundTheme,borderColor:themes.theme.color,top:animatedPosition}]}> 
@@ -220,7 +251,7 @@ export default function TotalSold({navigation}) {
         </Pressable>
          </Animated.View>
       </Animated.View>
-    </>
+    </View>
   )
 }
 

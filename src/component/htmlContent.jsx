@@ -6,10 +6,9 @@ const htmlContent = ({bill,localUserData,qrImage})=>{
 
  const totalQuantity = bill?.products?.reduce((prev,nex)=>{return prev + Number(nex?.quantity)},0)
  
- const words = numberToWords.toWords(bill?.totalAmount)
-  const localImg = Image.resolveAssetSource(require("../assetes/storelogo.png")).uri;
+const words = numberToWords.toWords(Number(bill?.totalAmount || 0))
+
  
-   
 return (`
 <!DOCTYPE html>
 <html lang="en">
@@ -19,7 +18,8 @@ return (`
   <style>
   *{
     margin:0;
-    pading:0;
+    padding:0;
+    box-sizing:border-box;
   }
     body {
       font-family: Arial, sans-serif;
@@ -117,14 +117,15 @@ return (`
     <p style="font-weight:bolder;color:black;">BILL OF SUPPLY</p>
     <p style="border:solid 2px gray; padding:2px 4px;color:gray;font-weight:bolder;border-radius:3px;font-size:14px">ORIGINAL</p>
     </div>
-    <header> 
-      <img src="${localImg}"    alt="Logo">
+    <header>  
+      <img src="${localUserData &&  localUserData?.imageLogo ? `data:image/jpeg;base64,${localUserData?.imageLogo}` :""}" alt="Logo">
+
       <div>
-       <h3 style="color:#ff6600">${localUserData?.beusnessName}</h3>
-       <p>Address : Adhouri-more, Rajhara, Ward-No 4, Meral, Garhwa, Jharkhand, 822114</p>
-       <p>Phone : ${localUserData?.phone}</p>
-       <p>Email : alamsheransari15@gmail.com</p>
-       <p>Website : https://easyshopemart.netlify.app/</p>
+       <h3 style="color:#ff6600">${localUserData?.beusnessName ? localUserData?.beusnessName :"Store"}</h3>
+       <p>Address :${localUserData?.Adress ? localUserData?.Adress : "No"}</p>
+       <p>Phone : ${localUserData?.phone ? localUserData?.phone :"No"}</p>
+       <p>Email : ${localUserData?.Email ? localUserData?.Email : "No"}</p>
+       <p>Website : ${localUserData?.Web ? localUserData?.Web : "No"}</p>
       </div>
     </header>
 
@@ -161,7 +162,7 @@ return (`
            return (`
           <tr>
           <td>${items?.name}</td>
-          <td>${items?.quantity} ${items?.units.toUpperCase()}</td>
+          <td>${items?.quantity} ${(items?.units || '').toUpperCase()}</td>
           <td>${items?.salePrice}</td>
           <td>${Number(items?.salePrice) * Number(items?.quantity) }</td>
         </tr>`)
@@ -197,7 +198,9 @@ return (`
   </div>
   
     <div class="qr-section"> 
-      <img src="${qrImage && qrImage}" style="height:200px;width:200px" alt="QR Code">
+     
+      <img src="${qrImage || ''}" style="height:200px;width:200px" alt="QR Code">
+      
       <div>
         <h3>Payment QR Code</h3>
         <p>UPI ID: ${localUserData ? localUserData?.upiId : '1234567890@ybl'}</p>

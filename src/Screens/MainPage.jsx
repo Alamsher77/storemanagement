@@ -19,14 +19,17 @@ import {ProductContext} from '../Context/Contextcontent'
  import Currancy from '../Currancy'
 export default function MainPage() {
   
-  const {productCategory,itemsRecords,themes,SaleRecords,localUserData,monthlySaleData} = useContext(ProductContext)
+  const {productCategory,itemsRecords,themes,SaleRecords,localUserData,monthlySaleData,todayIncome} = useContext(ProductContext)
   const router = useNavigation();
 
   const [openDragableModel, setOpenDragableModel] = useState(false)
   const lineData = [{ value: 20 }, { value: 30 }, { value: 26 }, { value: 20 }, { value: 25 }, { value: 50 }, { value: 40 }, { value: 59 }, { value: 50 }];
   
-  const [poupwarning,setpoupwarning] = useState(localUserData)
+ 
    const TotalSaleIncome = SaleRecords?.reduce((prev,next)=> prev + Number(next?.totalIncome),0)
+   
+   const [showPoupup, setShowpopup] = useState(true)
+ 
   return (
       <View style={{ flex: 1, }}>
       <DragableModel minHeight={300} openDragableModel={openDragableModel} setOpenDragableModel={setOpenDragableModel} > 
@@ -47,8 +50,9 @@ export default function MainPage() {
         </TouchableOpacity>
       </View>
       {/*Got the user Detaisl view and update and add */}
-     {
-       poupwarning &&
+    {
+      
+    showPoupup &&
         <View style={{backgroundColor:themes.theme.backgroundTheme,paddingHorizontal:12,paddingVertical:4,flexDirection:'row',justifyContent:'space-between',borderBottomWidth:0.2,borderColor:themes.theme.color,alignItems:'center'}}>
        <Text style={{color:themes.theme.color,fontSize:10}}>Your Banking Details And Buesness Details Note Added</Text>
        <View style={{width:100,flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
@@ -56,12 +60,12 @@ export default function MainPage() {
        <TouchableOpacity onPress={()=>router.navigate('UserBankingDetails')} style={{backgroundColor:Colors.mainColor,paddingHorizontal:8,paddingVertical:2,borderRadius:4}}>
         <Text style={{color:'#fff'}}>add</Text>
        </TouchableOpacity>
-       <TouchableOpacity onPress={()=>setpoupwarning(false)}>
+       <TouchableOpacity onPress={()=>setShowpopup(false)}>
         <Ionicons size={17} color={themes.theme.color} name="close" />
        </TouchableOpacity>
        </View>
       </View>
-     }
+    }
       <ScrollContainer style={{backgroundColor:themes.theme.backgroundTheme}}>
      
         <LinearGradient  colors={[Colors.mainColor, "rgba(243, 80, 5, 0.3)"]}  style={{ position: 'relative', width: '100%', height: 300, borderRadius: 10, justifyContent: 'center', alignItems: 'center' }} >
@@ -88,8 +92,8 @@ export default function MainPage() {
             xAxisLabelTexts={0}
           />
           <View style={{ position: 'absolute', top: 0, left: 0, padding: 20, gap: 6 }}>
-            <Text style={{ color: themes.theme.color, fontWeight: '600' }}>Profit amount</Text>
-            <Text style={{ color:themes.theme.color, fontWeight: '900', fontSize: 30 }}>{Currancy(TotalSaleIncome)}</Text>
+            <Text style={{ color: "#fff", fontWeight: '600' }}>Profit amount</Text>
+            <Text style={{ color:"#fff", fontWeight: '900', fontSize: 30 }}>{Currancy(TotalSaleIncome)}</Text>
             <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center', alignItems: 'center' }}>
               <Text style={{ backgroundColor: '#fff', paddingHorizontal: 10, paddingVertical: 2, borderRadius: 50, color: 'rgba(0,200,0,1)', fontWeight: '600' }}>+15%</Text>
               <Text style={{ color: '#fff', opacity: 0.8 }}>From the previous week</Text>
@@ -97,11 +101,12 @@ export default function MainPage() {
           </View>
           <View style={{ top: 200, left: 200, position: 'absolute', width: 12, height: 12, backgroundColor: Colors.mainColor, outlineWidth: 6, outlineColor: '#fff', borderRadius: 50 }} />
         </LinearGradient>
-        <View style={{ marginTop: 30, flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
+        <View style={{ marginTop: 30, flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'start' }}>
           <ProductModelData onPress={()=> router.navigate('TotalProduct')} percentChange={5} quantity={itemsRecords?.length} icons={<Ionicons name="cube" size={25} color={Colors.mainColor} />} header="Total Products" />
           <ProductModelData percentChange={65}  quantity={productCategory?.length} icons={<Octicons name="apps" size={23} color={Colors.mainColor} />} header="Product Category" />
-          <ProductModelData percentChange={-23}  onPress={()=> router.navigate('TotalSold')} quantity={SaleRecords?.length} icons={<Ionicons name="receipt-sharp" size={25} color={Colors.mainColor} />} header="Total Sold" />
-          <ProductModelData percentChange={monthlySaleData?.percentChange}  quantity={monthlySaleData?.totalIncome} icons={<MaterialIcons name="currency-rupee" size={25} color={Colors.mainColor} />} header="Monthly income" />
+          <ProductModelData percentChange={-23}  onPress={()=> router.navigate('TotalSold')} quantity={SaleRecords?.length} icons={<Ionicons name="receipt-sharp" size={25} color={Colors.mainColor} />} header="Total Sold" date={SaleRecords[0]?.date}/>
+          <ProductModelData percentChange={todayIncome?.todayPercentChange}  quantity={todayIncome.todayIncome} icons={<MaterialIcons name="currency-rupee" size={25} color={Colors.mainColor} />} header="Today income" date={SaleRecords[0]?.date} />
+          <ProductModelData percentChange={monthlySaleData?.percentChange}  quantity={monthlySaleData?.totalIncome} icons={<MaterialIcons name="currency-rupee" size={25} color={Colors.mainColor} />} header="Monthly income" date={SaleRecords[0]?.date} />
         </View>
       </ScrollContainer>
     </View>

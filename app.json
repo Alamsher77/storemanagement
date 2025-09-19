@@ -4,8 +4,9 @@
     "slug": "store",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo.png",
     "userInterfaceStyle": "automatic",
+    "jsEngine": "jsc",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -17,10 +18,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/logo_foreground.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.invest_flipkart.store"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -42,7 +44,28 @@
           }
         }
       ],
-      "expo-asset"
-    ]
+      "expo-asset",
+      "expo-font",
+       [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2a0abd60-d8fa-4d84-9ee1-498d9bbeaa1d"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/2a0abd60-d8fa-4d84-9ee1-498d9bbeaa1d"
+    }, 
   }
 }

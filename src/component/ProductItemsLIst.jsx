@@ -8,11 +8,11 @@ import {
 import Colors from '../Colors'
 import Currancy from '../Currancy'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons' 
-import React,{useContext} from 'react'
+import React,{useContext,memo} from 'react'
 import {ProductContext} from '../Context/Contextcontent'
-export default function ProductItemsList( {
+const ProductItemsList = memo(({
   items, deleteHandler,editHandler
-}) {
+}) => {
 
  const {themes} = useContext(ProductContext)
   return (
@@ -66,4 +66,5 @@ export default function ProductItemsList( {
          </View>  
          </BoxContainer>
   )
-}
+})
+export default ProductItemsList
