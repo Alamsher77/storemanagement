@@ -39,7 +39,7 @@ const ProductItemsForm = ({setItemsData,itemsData,setOpenDragableModel,fetchData
       <OptionsInputeText itemsData={itemsData?.size} lable={lable} onChangeText={(text)=>changeItemsHandeler(text,'size')} optionsButton ={sizeData}/> 
       }
       </View>
-     <TextInput value={lable && itemsData?.category} onChangeText={(text)=>changeItemsHandeler(text,'category')} placeholder='Category' placeholderTextColor={themes.theme.color} style={[styles.inputeFilds,{color:themes.theme.color}]}   />
+     <TextInput value={lable && itemsData?.category} onChangeText={(text)=>changeItemsHandeler(text.trim(),'category')} placeholder='Category' placeholderTextColor={themes.theme.color} style={[styles.inputeFilds,{color:themes.theme.color}]}   />
      </View>
      <Button onPress={()=>submitHandler()} color={Colors.mainColor}  title={`${lable && lable} Items`} />
      </View>

@@ -39,6 +39,7 @@ import FontAwesome6 from 'react-native-vector-icons/FontAwesome6'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Toast from 'react-native-toast-message'
 import DateAndTime from '../dateAndTime'
+import Currancy from '../Currancy'
 export default function Store() { 
   
   const {themes,fetchData,itemsRecords,dataloading,productCategory} = useContext(ProductContext)
@@ -64,7 +65,7 @@ export default function Store() {
     }
     Toast.show({type:'success',text1:'Product Created Success !!'})
     setOpenDragableModel(false)
-  //  fetchData()
+    fetchData()
     } catch (e) {
       alert(e.message)
     }
@@ -130,7 +131,8 @@ const filterProductWithCategoryOrStock = itemsRecords.filter((items)=>{
     setSearchProduct(filterseachitems)
    
   }
-   
+  
+
   return (
     <View style={{backgroundColor:themes.theme.backgroundTheme,position:'relative',flex:1,paddingBottom:90}}>
     <DragableModel
@@ -218,6 +220,7 @@ const filterProductWithCategoryOrStock = itemsRecords.filter((items)=>{
       filterProductWithCategoryOrStock?.length == 0 ?
       <Text style={{color:themes.theme.color}}>No Records</Text>
       :
+     
          <FlatList 
         data={filterProductWithCategoryOrStock}
         vertical
@@ -233,7 +236,7 @@ const filterProductWithCategoryOrStock = itemsRecords.filter((items)=>{
           removeClippedSubviews={true}
 
         />
-       
+      
      }
      </View> 
     <View style={ { position: 'absolute',

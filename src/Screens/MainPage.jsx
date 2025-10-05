@@ -105,7 +105,7 @@ export default function MainPage() {
           <ProductModelData onPress={()=> router.navigate('TotalProduct')} percentChange={5} quantity={itemsRecords?.length} icons={<Ionicons name="cube" size={25} color={Colors.mainColor} />} header="Total Products" />
           <ProductModelData percentChange={65}  quantity={productCategory?.length} icons={<Octicons name="apps" size={23} color={Colors.mainColor} />} header="Product Category" />
           <ProductModelData percentChange={-23}  onPress={()=> router.navigate('TotalSold')} quantity={SaleRecords?.length} icons={<Ionicons name="receipt-sharp" size={25} color={Colors.mainColor} />} header="Total Sold" date={SaleRecords[0]?.date}/>
-          <ProductModelData percentChange={todayIncome?.todayPercentChange}  quantity={todayIncome.todayIncome} icons={<MaterialIcons name="currency-rupee" size={25} color={Colors.mainColor} />} header="Today income" date={SaleRecords[0]?.date} />
+          <ProductModelData onPress={()=>router.navigate('ProductCategry')}  percentChange={todayIncome?.todayPercentChange}  quantity={todayIncome.todayIncome} icons={<MaterialIcons name="currency-rupee" size={25} color={Colors.mainColor} />} header="Today income" date={SaleRecords[0]?.date} />
           <ProductModelData percentChange={monthlySaleData?.percentChange}  quantity={monthlySaleData?.totalIncome} icons={<MaterialIcons name="currency-rupee" size={25} color={Colors.mainColor} />} header="Monthly income" date={SaleRecords[0]?.date} />
         </View>
       </ScrollContainer>

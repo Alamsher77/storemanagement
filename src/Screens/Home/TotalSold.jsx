@@ -51,7 +51,7 @@ export default function TotalSold({navigation}) {
   }
   
   // search product and filter
- 
+ const [filterbyquery,setfilterbyquery] = useState(null)
   const searchHandler = (text)=>{
     setSearchText(text)
     const filterseachitems = text.length === 0 ? null : itemsRecords.filter((items)=>{
@@ -60,6 +60,17 @@ export default function TotalSold({navigation}) {
     }) 
     setSearchProduct(filterseachitems)
    
+  // using query by = sale product filter
+   if (text.includes('=')) {
+    const findThequery = text.split('=')[1]
+    if (SaleRecords.filter(saleitem => (saleitem.date.includes(findThequery.trim())))) {
+    
+    const filterSaleRecordsByDate = SaleRecords.filter(itemsDate => (itemsDate.date ==  findThequery))
+     setfilterbyquery(filterSaleRecordsByDate)
+    }
+   }else{
+      setfilterbyquery(null)
+    }
   }
   
   // quantity increese and decreese 
@@ -68,6 +79,7 @@ export default function TotalSold({navigation}) {
     setSaleProductItems((prev) => {
   // Check if item already exists
   const exists = prev.find((p) => p.id === itemsData.id);
+
 
   if (exists) {
     // Agar already hai to bas quantity change karo
@@ -84,7 +96,9 @@ export default function TotalSold({navigation}) {
     ];
   }
 });
- 
+   if (SaleProductItems.length >= 0 && !isUp) {
+     heightDecreeseAndIncreesAndHide()
+   }
   }
   const QuantityDecreese = (itemsData)=>{
       setSaleProductItems((prev) => {
@@ -99,7 +113,9 @@ export default function TotalSold({navigation}) {
     return prev.filter((p) => p.id !== itemsData.id)
   }
 });
- 
+  if (SaleProductItems.length <= 0 && isUp) {
+     heightDecreeseAndIncreesAndHide()
+   }
   } 
   
   const TotalProductPrice = SaleProductItems.reduce((prev,next)=>{
@@ -150,7 +166,7 @@ export default function TotalSold({navigation}) {
    
   } 
   
-  const TotalSaleAmount = SaleRecords.reduce((prev,next) => prev + Number(next.totalAmount),0)
+  const TotalSaleAmount = filterbyquery ? filterbyquery.reduce((prev,next) => prev + Number(next.totalAmount),0) : SaleRecords.reduce((prev,next) => prev + Number(next.totalAmount),0)
  
   return (
     <View style={{backgroundColor:themes.theme.backgroundTheme,position:'relative',flex:1,paddingHorizontal:8}}>
@@ -159,7 +175,7 @@ export default function TotalSold({navigation}) {
         <FontAwesome6 size={20} color={"#fff"} name="arrow-left" />
       </Pressable>
         <View style={{height:40,borderWidth:0.3,borderColor:'#fff',width:320,borderRadius:12,position:'relative'}}>
-        <TextInput onBlur={heightDecreeseAndIncreesAndHide} onFocus={heightDecreeseAndIncreesAndHide} value={searchText} onChangeText={(text)=>searchHandler(text)}  placeholderTextColor="#fff" placeholder="Search Product By name/size" style={{paddingRight:67,paddingLeft:10,color:'#fff'}} />
+        <TextInput value={searchText} onChangeText={(text)=>searchHandler(text)}  placeholderTextColor="#fff" placeholder="Search Product By name/size" style={{paddingRight:67,paddingLeft:10,color:'#fff'}} />
         <View style={{position:'absolute',right:0,top:'50%',transform:[{translateY:'-50%'}],justifyContent:'center',alignItems:'center',flexDirection:'row',gap:6,}}>
         {
           searchText ?
@@ -181,7 +197,7 @@ export default function TotalSold({navigation}) {
       </View> 
      
          {
-            searchProduct ?
+            searchProduct && !filterbyquery ?
             searchProduct.length == 0 ?
              <Text style={{color:themes.theme.color}}>No Records</Text>
             :
@@ -204,11 +220,11 @@ export default function TotalSold({navigation}) {
             SaleRecords &&
         <>
         <View style={{flexDirection:'row',justifyContent:'space-between',paddingHorizontal:10,paddingVertical:4}}>
-      <Text style={{color:themes.theme.color}}>Total Sale : {SaleRecords.length}</Text>
+      <Text style={{color:themes.theme.color}}>Total Sale : {filterbyquery ? filterbyquery.length :SaleRecords.length}</Text>
          <Text style={{color:themes.theme.color}}>Total Sale Amount : {Currancy(TotalSaleAmount)}</Text>
         </View>
                <FlatList 
-        data={SaleRecords}
+        data={filterbyquery ? filterbyquery : SaleRecords}
         vertical
         showsVerticalScrollIndicator={false}
         renderItem={({item,index})=>(

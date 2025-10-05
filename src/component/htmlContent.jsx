@@ -1,14 +1,11 @@
 import Currancy from '../Currancy'
-import numberToWords from "number-to-words"; 
-import * as FileSystem from "expo-file-system";
-import {Image} from 'react-native'  
-const htmlContent = ({bill,localUserData,qrImage})=>{
+import numberToWords from "number-to-words";   
+const htmlContent = ({bill,localUserData})=>{
 
  const totalQuantity = bill?.products?.reduce((prev,nex)=>{return prev + Number(nex?.quantity)},0)
  
 const words = numberToWords.toWords(Number(bill?.totalAmount || 0))
 
- 
 return (`
 <!DOCTYPE html>
 <html lang="en">
@@ -118,15 +115,16 @@ return (`
     <p style="border:solid 2px gray; padding:2px 4px;color:gray;font-weight:bolder;border-radius:3px;font-size:14px">ORIGINAL</p>
     </div>
     <header>  
-      <img src="${localUserData &&  localUserData?.imageLogo ? `data:image/jpeg;base64,${localUserData?.imageLogo}` :""}" alt="Logo">
+      <img src="${localUserData ? `data:image/jpeg;base64,${localUserData?.imageLogo}` :"#"}" alt="Logo">
 
-      <div>
+    
+     <div>
        <h3 style="color:#ff6600">${localUserData?.beusnessName ? localUserData?.beusnessName :"Store"}</h3>
        <p>Address :${localUserData?.Adress ? localUserData?.Adress : "No"}</p>
        <p>Phone : ${localUserData?.phone ? localUserData?.phone :"No"}</p>
        <p>Email : ${localUserData?.Email ? localUserData?.Email : "No"}</p>
        <p>Website : ${localUserData?.Web ? localUserData?.Web : "No"}</p>
-      </div>
+      </div> 
     </header>
 
     <div class="invoice-details"> 
@@ -196,16 +194,7 @@ return (`
        Any enqairy Please contact To ${localUserData ? localUserData?.phone : 1234567890} my number.
     </div>
   </div>
-  
-    <div class="qr-section"> 
-     
-      <img src="${qrImage || ''}" style="height:200px;width:200px" alt="QR Code">
-      
-      <div>
-        <h3>Payment QR Code</h3>
-        <p>UPI ID: ${localUserData ? localUserData?.upiId : '1234567890@ybl'}</p>
-      </div>
-    </div>
+   
 </div>
     <footer>
       Invoice created By <strong>${localUserData ? localUserData?.beusnessName : 'Store Managment'}</strong>

@@ -95,10 +95,11 @@ Alert.alert('Error', 'Could not pick image');
            <TextInput value={userData.bankName} onChangeText={(text)=> setUserData({...userData,bankName:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} placeholderTextColor={color} placeholder="Bank Name" /> 
             <TextInput value={userData.ifsccode} onChangeText={(text)=> setUserData({...userData,ifsccode:text.toUpperCase()})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} placeholderTextColor={color} placeholder="IFSC CODE" /> 
         </View>
-        
-          <TextInput value={userData.Adress} onChangeText={(text)=> setUserData({...userData,Adress:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,}} placeholderTextColor={color} placeholder="Adress" /> 
+        <TextInput value={userData.Adress} onChangeText={(text)=> setUserData({...userData,Adress:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,}} placeholderTextColor={color} placeholder="Adress" /> 
           <TextInput value={userData.Email} onChangeText={(text)=> setUserData({...userData,Email:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,}} placeholderTextColor={color} placeholder="Email" /> 
           <TextInput value={userData.Web} onChangeText={(text)=> setUserData({...userData,Web:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,}} placeholderTextColor={color} placeholder="Web Address" /> 
+       
+        
         {
           userData.imageLogo &&
           <Image

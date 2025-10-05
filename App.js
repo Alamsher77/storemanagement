@@ -20,8 +20,12 @@ import {
   ContextContent
 } from './src/Context/Contextcontent'
 import * as Updates from "expo-updates"; 
-export default function App() {
+import SplashScreen from './src/page/SplashScreen'
+import * as SplashScreens from 'expo-splash-screen';
 
+SplashScreens.preventAutoHideAsync();
+export default function App() {
+  const [pageRady,setPageRady] = useState(false)
  useEffect(() => {
     async function checkUpdate() {
       try {
@@ -38,6 +42,16 @@ export default function App() {
 
     checkUpdate();
   }, []);
+
+useEffect(()=>{
+  setTimeout(function() {
+    setPageRady(true)
+    SplashScreens.hide()
+  }, 2200);
+},[])
+if (!pageRady) {
+  return <SplashScreen />
+}
 
   return (
     <ContextContent>
