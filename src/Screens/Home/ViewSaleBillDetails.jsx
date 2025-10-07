@@ -1,6 +1,6 @@
-import {View,Text,Dimensions,StyleSheet,TouchableOpacity} from 'react-native'
-import { useRoute } from '@react-navigation/native';
-import {useEffect,useContext,useRef,useState} from "react"
+import {View,Text,Dimensions,StyleSheet,TouchableOpacity,Pressable} from 'react-native'
+import { useRoute,useNavigation } from '@react-navigation/native';
+import {useEffect,useContext,useRef,useState,useLayoutEffect} from "react"
 import * as FileSystem from "expo-file-system";
 import { WebView } from 'react-native-webview';
 import htmlContent from '../../component/htmlContent'
@@ -42,7 +42,38 @@ const ViewSaleBillDetails = ()=>{
     }
   }
   
-   
+// add header component 
+
+const navigation = useNavigation();
+
+useLayoutEffect(()=>{
+ navigation.setOptions({
+   headerTitle: ()=> <Text style={{
+     color:themes.theme.color,
+     fontWeight:'800',
+     fontSize:16,
+     
+   }}>Invoice</Text>,
+   headerRight: ()=> <View style={{
+    flexDirection:'row',
+    gap:10,
+    alignItems:'center',
+    
+   }}>
+   <Pressable style={[styles.headerButton,{
+     backgroundColor:'rgba(256,0,0,0.7)',
+     borderColor:'rgba(256,0,0,1)',}]}>
+    <Text style={styles.headerButtonText}>Delete</Text>
+   </Pressable>
+   <Pressable onPress={()=>navigation.navigate("TotalSold",{...bill})} style={[styles.headerButton,{
+     backgroundColor:'rgba(255,190,0,0.7)',
+     borderColor:'rgba(255,190,0,1)',}]}>
+    <Text style={styles.headerButtonText}>Edit</Text>
+   </Pressable>
+   </View>,
+ })
+},[navigation])
+
       
   return (
       <View style={{flex:1,justifyContent:"space-between",flexDirection:"column"}}>
@@ -93,6 +124,17 @@ const styles = StyleSheet.create({
     paddingVertical:4,
     borderRadius:6,
     elevation:6
-  }
+  },
+  headerButton:{
+     borderWidth:1,
+     paddingHorizontal:10,
+     paddingVertical:3,
+     borderRadius:4,
+   },
+  headerButtonText:{
+     color:"#fff",
+     fontWeight:'800',
+     fontSize:12, 
+   }
 })
 export default ViewSaleBillDetails

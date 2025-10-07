@@ -12,7 +12,6 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import FontAwesome from 'react-native-vector-icons/FontAwesome' 
-import { SelectList } from 'react-native-dropdown-select-list'
 
 import AntDesign from 'react-native-vector-icons/AntDesign' 
 export default function TotalProduct() {
@@ -73,34 +72,9 @@ const filterProductData = itemsRecords.filter((items)=> (items?.stock <= 2 || (i
    
   }
   
-    const [selected, setSelected] = React.useState("");
-  
-  const data = [
-    {key:'1',value:'powder'},
-    {key:'2',value:'cream'},
-    {key:'3',value:'chutta'},
-    {key:'4',value:'Goa'},
-    {key:'1',value:'Jammu & Kashmir'},
-    {key:'2',value:'Gujrat'},
-    {key:'3',value:'Maharashtra'},
-    {key:'4',value:'Goa'},
-  ];
+   
   return ( 
     <>
-    <View style={{position:'absolute',top:0,left:0,width:140,backgroundColor:'#fff',zIndex:2}}>
-    
-      <SelectList 
-      onSelect={()=>console.log(selected)}
-      setSelected={setSelected} 
-      fontFamily='lato'
-      data={data}  
-      arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />} 
-      searchicon={<FontAwesome name="search" size={8} color={'black'} />} 
-      search={false} 
-      boxStyles={{borderRadius:0,paddingHorizontal:6,paddingVertical:3}} //override default styles
-      defaultOption={{ key:'1', value:'Jammu & Kashmir' }}   //default selected option
-    />
-    </View>
        <WebView style={{flex:0.80}} source={{html:htmlContent,baseUrl:''}} /> 
        <View style={[styles.printcontainer,{backgroundColor:themes.theme.backgroundTheme,paddingVertical:8,paddingBottom:20
        }]}>

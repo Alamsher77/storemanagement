@@ -1,5 +1,5 @@
 import { View, Text,useColorScheme,StyleSheet,Pressable,TextInput,Dimensions,Animated,FlatList} from 'react-native'
-import React,{useState,useRef,useContext} from 'react'
+import React,{useState,useRef,useContext,useEffect} from 'react'
 import ScrollContainer from '../../component/ScrollContainer'
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
@@ -10,10 +10,12 @@ import {ProductContext} from '../../Context/Contextcontent'
 import Toast from 'react-native-toast-message'
 import DateAndTime from '../../dateAndTime'
 import Conformation from '../../component/Conformation'
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation,useRoute } from '@react-navigation/native';
 import {addItemSale,readData,writeData} from '../../Storage/jsonStorage'
 const {height:ScreenHeight} = Dimensions.get('window')
 export default function TotalSold({navigation}) { 
+   const route = useRoute();
+    const prodId = route.params;
   const navigations = useNavigation()
   const {itemsRecords,themes,SaleRecords,fetchData} = useContext(ProductContext) 
    const [searchProduct,setSearchProduct] = useState(null)
@@ -22,6 +24,7 @@ export default function TotalSold({navigation}) {
    const animatedPosition = useRef(new Animated.Value(ScreenHeight)).current;
    const animatedSold = useRef(new Animated.Value(ScreenHeight)).current;
    
+  
    const heightDecreeseAndIncreesAndHide = ()=>{
      Animated.timing(animatedPosition, {
       toValue: isUp  ? ScreenHeight : ScreenHeight * 0.7 , // agar upar hai to neeche, agar neeche hai to upar
@@ -37,19 +40,24 @@ export default function TotalSold({navigation}) {
    }
    const heightDecreeseAndIncrees = ()=>{
      Animated.timing(animatedPosition, {
-      toValue: isUp  ? 50 : ScreenHeight * 0.7, // agar upar hai to neeche, agar neeche hai to upar
+      toValue: isUp  ? 0 : ScreenHeight * 0.7, // agar upar hai to neeche, agar neeche hai to upar
       duration: 500,
       useNativeDriver: false, // top property ke liye false
     }).start();
      Animated.timing(animatedSold, {
-      toValue: isUp ? 70 : ScreenHeight * 0.72, // agar upar hai to neeche, agar neeche hai to upar
+      toValue: isUp ? 20 : ScreenHeight * 0.72, // agar upar hai to neeche, agar neeche hai to upar
       duration: 500,
       useNativeDriver: false, // top property ke liye false
     }).start();
 
     setIsUp(!isUp); // state toggle
   }
-  
+  // yadi sale ko edit kre to 
+   useEffect(()=>{
+     if (prodId) {
+     heightDecreeseAndIncrees()
+     }
+   },[prodId])
   // search product and filter
  const [filterbyquery,setfilterbyquery] = useState(null)
   const searchHandler = (text)=>{
@@ -61,12 +69,17 @@ export default function TotalSold({navigation}) {
     setSearchProduct(filterseachitems)
    
   // using query by = sale product filter
-   if (text.includes('=')) {
     const findThequery = text.split('=')[1]
+   if (text.includes('=')) {
     if (SaleRecords.filter(saleitem => (saleitem.date.includes(findThequery.trim())))) {
     
-    const filterSaleRecordsByDate = SaleRecords.filter(itemsDate => (itemsDate.date ==  findThequery))
+    const filterSaleRecordsByDate = SaleRecords.filter((itemsDate) => {
+      return itemsDate?.date.toLowerCase().includes(findThequery.toLowerCase()) || itemsDate?.customerName.toLowerCase().includes(findThequery.toLowerCase())
+    }
+      )
      setfilterbyquery(filterSaleRecordsByDate)
+    
+    
     }
    }else{
       setfilterbyquery(null)
@@ -74,7 +87,7 @@ export default function TotalSold({navigation}) {
   }
   
   // quantity increese and decreese 
-  const [SaleProductItems,setSaleProductItems] = useState([])
+  const [SaleProductItems,setSaleProductItems] = useState(prodId ? prodId?.products : [])
   const QuantityIncreese = (itemsData)=>{
     setSaleProductItems((prev) => {
   // Check if item already exists
@@ -126,7 +139,7 @@ export default function TotalSold({navigation}) {
   },0)
   
   // create sale data 
-  const [customerName,setCustomerName] = useState(null)
+  const [customerName,setCustomerName] = useState(prodId ? prodId?.customerName : null)
   const SaleHandler = async()=>{
     try {
       /* code */ 
@@ -165,12 +178,23 @@ export default function TotalSold({navigation}) {
     }
    
   } 
+  const EditSaleHandler = async()=>{
+    try {
+      /* code */ 
+      const status = await Conformation('🧾','Are you sure Edit this bill !!')
+      if (!status) return 
+      navigation.navigate("Bill",{bill:{customerName}})
+    } catch (e) { 
+     Toast.show({type:'error',text1:e.message})
+    }
+   
+  } 
   
   const TotalSaleAmount = filterbyquery ? filterbyquery.reduce((prev,next) => prev + Number(next.totalAmount),0) : SaleRecords.reduce((prev,next) => prev + Number(next.totalAmount),0)
  
   return (
-    <View style={{backgroundColor:themes.theme.backgroundTheme,position:'relative',flex:1,paddingHorizontal:8}}>
-      <View style={[styles.header,{borderColor:themes.theme.color}]}>
+    <>
+     <View style={[styles.header,{borderColor:themes.theme.color}]}>
       <Pressable onPress={()=>navigation.goBack()}>
         <FontAwesome6 size={20} color={"#fff"} name="arrow-left" />
       </Pressable>
@@ -195,6 +219,8 @@ export default function TotalSold({navigation}) {
         </View>
         </View>
       </View> 
+    <View style={{backgroundColor:themes.theme.backgroundTheme,position:'relative',flex:1,paddingHorizontal:8}}>
+     
      
          {
             searchProduct && !filterbyquery ?
@@ -220,8 +246,8 @@ export default function TotalSold({navigation}) {
             SaleRecords &&
         <>
         <View style={{flexDirection:'row',justifyContent:'space-between',paddingHorizontal:10,paddingVertical:4}}>
-      <Text style={{color:themes.theme.color}}>Total Sale : {filterbyquery ? filterbyquery.length :SaleRecords.length}</Text>
-         <Text style={{color:themes.theme.color}}>Total Sale Amount : {Currancy(TotalSaleAmount)}</Text>
+      <Text style={{color:themes.theme.color,fontSize:12}}>Total Sale : {filterbyquery ? filterbyquery.length :SaleRecords.length}</Text>
+         <Text style={{color:themes.theme.color,fontSize:12}}>Total Sale Amount : {Currancy(TotalSaleAmount)}</Text>
         </View>
                <FlatList 
         data={filterbyquery ? filterbyquery : SaleRecords}
@@ -249,6 +275,7 @@ export default function TotalSold({navigation}) {
         <ScrollContainer style={{gap:4}}  > 
          
           {
+         
             SaleProductItems&&
             SaleProductItems?.map((items,index)=>{
               return(<SaleProductList setSaleProductItems={setSaleProductItems} QuantityDecreese={QuantityDecreese} QuantityIncreese={QuantityIncreese} key={index} items={items}/>)
@@ -262,12 +289,13 @@ export default function TotalSold({navigation}) {
           </Text> 
           <Text style={{color:themes.theme.color}}>{Currancy(TotalProductPrice)}</Text>
         </View>
-        <Pressable onPress={SaleHandler} style={{alignSelf:'center',backgroundColor:Colors.mainColor,outlineWidth:2,outlineColor:themes.theme.color,paddingHorizontal:12,paddingVertical:4,borderRadius:8}}>
-          <Text style={{color:themes.theme.color}} >Genrate Bill/Reciepent</Text>
+        <Pressable onPress={prodId ? EditSaleHandler : SaleHandler} style={{alignSelf:'center',backgroundColor:Colors.mainColor,outlineWidth:2,outlineColor:"#999",paddingHorizontal:12,paddingVertical:4,borderRadius:8}}>
+          <Text style={{color:"#fff"}} >{prodId ? "Sale Update" : "Genrate Bill/Reciepent"}</Text>
         </Pressable>
          </Animated.View>
       </Animated.View>
     </View>
+    </>
   )
 }
 
@@ -287,6 +315,7 @@ const styles = StyleSheet.create({
     position:'absolute',
     width:'100%',
     height:'100%', 
-    borderTopWidth:0.5
+    borderTopWidth:0.5,
+    left:8,
   }
 })

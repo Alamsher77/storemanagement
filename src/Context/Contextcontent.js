@@ -20,8 +20,8 @@ export const useColors = () => {
     mainColor: "#e15836ff",
     mode:colorScheme,
     theme: {
-      backgroundTheme: colorScheme === "dark" ? "black" : "#fff",
-      color: colorScheme === "dark" ? "#ddd" : "#666",
+      backgroundTheme: colorScheme === "dark" ? "#000" : "#fff",
+      color: colorScheme === "dark" ? "#fff" : "#666",
     },
   };
 };

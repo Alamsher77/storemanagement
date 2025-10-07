@@ -10,10 +10,13 @@ const OptionsInputeText = ({optionsButton,onChangeText,lable,itemsData})=>{
   const [openoptions,setopenoptions] = useState(false)
   const [selected,setSelected] = useState(optionsButton ? optionsButton[0] : null) 
   return( 
-  <View style={styles.inputeFilds}>  
-     <TextInput  value={lable ? itemsData :selected}   onPress={()=>setopenoptions(!openoptions)} placeholder='Select size' placeholderTextColor={themes.theme.color} style={{width:'80%',color:themes.theme.color}}   /> 
-     <Pressable onPress={()=> setopenoptions(!openoptions)} style={{justifyContent:'center',alignItems:'center',width:25,}}>
-      <FontAwesome  size={20} name="angle-down"/>
+  <View style={styles.inputeFilds}>   
+     <Pressable onPress={()=> {
+       setopenoptions(!openoptions)
+       console.log(itemsData)
+     }} style={{justifyContent:'space-between',alignItems:'center',flexDirection:'row',width:'100%',paddingVertical:10,paddingHorizontal:4}}>
+     <Text style={{ color:themes.theme.color}}>{lable ? itemsData == '' || !itemsData ? 'Select' : itemsData : selected }</Text>
+      <FontAwesome color={themes.theme.color}   size={20} name="angle-down"/>
      </Pressable>
     {
       (openoptions && optionsButton) &&  

@@ -36,15 +36,15 @@ useEffect(() => {
     Animated.loop(
       Animated.sequence([
         Animated.timing(translateX, {
-          toValue: 50,   // right side move karega
-          duration: 2000,
+          toValue: 300,   // right side move karega
+          duration: 8000,
           easing: Easing.linear,
           useNativeDriver: true,
         }),
         Animated.timing(translateX, {
           toValue: 0,   // wapas left side
-          duration: 2000,
-          easing: Easing.linear,
+          duration: 8000,
+          wasing: Easing.linear,
           useNativeDriver: true,
         }),
       ])
