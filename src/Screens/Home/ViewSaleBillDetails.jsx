@@ -1,7 +1,7 @@
 import {View,Text,Dimensions,StyleSheet,TouchableOpacity,Pressable} from 'react-native'
-import { useRoute,useNavigation } from '@react-navigation/native';
-import {useEffect,useContext,useRef,useState,useLayoutEffect} from "react"
-import * as FileSystem from "expo-file-system";
+import { useRoute,useNavigation,useFocusEffect} from '@react-navigation/native';
+import {useEffect,useContext,useRef,useState,useLayoutEffect,useCallback} from "react"
+import * as FileSystem from "expo-file-system/legacy";
 import { WebView } from 'react-native-webview';
 import htmlContent from '../../component/htmlContent'
 import AntDesign from 'react-native-vector-icons/AntDesign' 
@@ -11,13 +11,18 @@ import Currancy from '../../Currancy'
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import Toast from 'react-native-toast-message'
+import Conformation from '../../component/Conformation'
+import {deleteItemSale} from '../../Storage/jsonStorage'
+import {dbConnection} from '../../Storage/Database'
 // import QRCode from "react-native-qrcode-svg";
 const {height:ScreenHeight} = Dimensions.get('window')
 const ViewSaleBillDetails = ()=>{
-    const {themes,localUserData} = useContext(ProductContext)
+    const {themes,localUserData,fetchData,SaleRecords} = useContext(ProductContext)
     const route = useRoute();
-    const { bill } = route.params; 
-
+    const { saleBill } = route.params; 
+    const findCurrentBill = SaleRecords.find(saleitem => saleitem.id == saleBill.id)
+    const bill = {...saleBill,...findCurrentBill}
+   
   // const print mobile thermal
   const PrintUsingMobile = async()=>{
       // 1. Init printer module
@@ -46,6 +51,20 @@ const ViewSaleBillDetails = ()=>{
 
 const navigation = useNavigation();
 
+const SaleDeleteHandler = async()=>{
+  const status = await Conformation('⚠️ DELETED ⚠️','Are you delete this invoice !!')
+  try {
+  if (status) {
+    const db = await dbConnection()
+      await db.runAsync('DELETE FROM product_sale WHERE id = $value',{$value : saleBill?.id}) 
+    navigation.goBack()
+    fetchData()
+  } 
+   Toast.show({type:'success',text1:'Existing Sale Deteled !!'})
+  } catch (e) {
+   Toast.show({type:'error',text1:e.message})
+  }
+}
 useLayoutEffect(()=>{
  navigation.setOptions({
    headerTitle: ()=> <Text style={{
@@ -60,7 +79,7 @@ useLayoutEffect(()=>{
     alignItems:'center',
     
    }}>
-   <Pressable style={[styles.headerButton,{
+   <Pressable onPress={SaleDeleteHandler}  style={[styles.headerButton,{
      backgroundColor:'rgba(256,0,0,0.7)',
      borderColor:'rgba(256,0,0,1)',}]}>
     <Text style={styles.headerButtonText}>Delete</Text>
@@ -74,7 +93,14 @@ useLayoutEffect(()=>{
  })
 },[navigation])
 
-      
+
+useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
+  
+   if (!themes) return null;   
   return (
       <View style={{flex:1,justifyContent:"space-between",flexDirection:"column"}}>
             { 

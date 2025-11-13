@@ -29,6 +29,9 @@ export default function BottomTabNavigation() {
       alert(error.message)
     })
   }
+ 
+if (!themes) return null;
+
   return (
     <>
       {/* model for virsion Update for apps  */}
@@ -63,8 +66,10 @@ export default function BottomTabNavigation() {
         <Tab.Screen name="Analysis" component={Analysis} />
         <Tab.Screen
         options={{
-          headerRight:()=> <StoreHeader title="Store" />
+         headerRight: () => <StoreHeader title="Store" />,
+         headerShown: true
         }}
+
         name="Store" component={Store} />
       </Tab.Navigator>
     </>

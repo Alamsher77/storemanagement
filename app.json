@@ -2,62 +2,59 @@
   "expo": {
     "name": "store",
     "slug": "store",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "userInterfaceStyle": "automatic",
     "jsEngine": "jsc",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true
+    "splash": {
+      "image": "./assets/images/logo_foreground.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo_foreground.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
+      "edgeToEdgeEnabled": false,
       "package": "com.invest_flipkart.store"
     },
     "plugins": [
+      "expo-asset",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ],
       [
         "expo-sqlite",
         {
           "enableFTS": true,
           "useSQLCipher": true,
           "android": {
+            // Override the shared configuration for Android
             "enableFTS": false,
             "useSQLCipher": false
           },
-          "ios": {
-            "customBuildFlags": [
-              "-DSQLITE_ENABLE_DBSTAT_VTAB=1 -DSQLITE_ENABLE_SNAPSHOT=1"
-            ]
-          }
-        }
-      ],
-      "expo-asset",
-      "expo-font",
-       [
-        "expo-image-picker",
-        {
-          "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
       ]
     ],
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/2a0abd60-d8fa-4d84-9ee1-498d9bbeaa1d"
+    },
     "extra": {
       "eas": {
         "projectId": "2a0abd60-d8fa-4d84-9ee1-498d9bbeaa1d"
       }
     },
     "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "enabled": true,
-      "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/2a0abd60-d8fa-4d84-9ee1-498d9bbeaa1d"
-    }, 
+      "policy": "sdkVersion"
+    }
   }
 }

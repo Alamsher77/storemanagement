@@ -1,5 +1,5 @@
 import { View, Platform, StyleSheet } from 'react-native';
-import { useLinkBuilder, useTheme } from '@react-navigation/native';
+import {useTheme } from '@react-navigation/native';
 import { Text, PlatformPressable } from '@react-navigation/elements';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -10,8 +10,7 @@ import React,{useContext} from 'react'
 export default function MyTabBar({ state, descriptors, navigation }) {
   const {themes} = useContext(ProductContext)
   const { colors } = useTheme();
-  const { buildHref } = useLinkBuilder();
-
+  if (!state || !navigation) return null;
   return (
     <View style={[styles.container,{backgroundColor:themes.theme.backgroundTheme}]}>
       {state.routes.map((route, index) => {
@@ -40,13 +39,15 @@ export default function MyTabBar({ state, descriptors, navigation }) {
             target: route.key,
             canPreventDefault: true,
           });
-
           if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name, route.params);
+            navigation.navigate(route.name, route.params || {});
+          }else{
+             navigation.navigate(route.name);
           }
         };
 
         const onLongPress = () => {
+        
           navigation.emit({
             type: 'tabLongPress',
             target: route.key,
@@ -56,7 +57,6 @@ export default function MyTabBar({ state, descriptors, navigation }) {
         return (
           <PlatformPressable
             key={index}
-            href={buildHref(route.name, route.params)}
             accessibilityState={isFocused ? { selected: true } : {}}
             accessibilityLabel={options.tabBarAccessibilityLabel}
             testID={options.tabBarButtonTestID}

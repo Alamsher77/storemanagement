@@ -20,8 +20,10 @@ import {
   readData,
   addItem,
   deleteItem,
-  updateItem,
+  updateItem, 
 } from '../Storage/jsonStorage'
+
+import {dbConnection,addSale,addProduct} from '../Storage/Database'
 import Colors from '../Colors'
 import DragableModel from '../component/DragableModel'
 import {
@@ -57,25 +59,28 @@ export default function Store() {
   })
 // create Product items of new 
   const createItemsHanderl = async()=>{
-    try {  
-    const data = await addItem(itemsData)  
-    if(data?.message){
-      Toast.show({type:'error',text1:data?.message})
-      return false
-    }
-    Toast.show({type:'success',text1:'Product Created Success !!'})
-    setOpenDragableModel(false)
+    try {   
+   const createProduct = await addProduct(itemsData)
+   if (!createProduct.success) {
+     Toast.show({type:'error',text1:createProduct.message})
+     return false
+   }
+    Toast.show({type:'success'.success,text1:createProduct.message})
+    // setOpenDragableModel(false)
     fetchData()
     } catch (e) {
+      console.log(e)
       alert(e.message)
     }
   } 
   const [productEdit,setProductEdit] = useState(null)
  const deleteHandler = async(id)=>{
    try {
+    
   const conform = await Conformation('⚠️','Are You Delete This Items');
   if(!conform) return 
-  await deleteItem(id);
+   const db = await dbConnection()
+   await db.runAsync('DELETE FROM products WHERE id = $value', { $value: id });
   fetchData();  
   Toast.show({type:'success',text1:'Product Deteled !!'})
    } catch (e) {
@@ -88,21 +93,29 @@ export default function Store() {
     if (!productEdit) {
     const findbyidrecords = itemsRecords?.find((items)=> { return items?.id == id})
     setItemsData({...findbyidrecords})
-       setProductEdit(id) 
+      setProductEdit(id) 
       setOpenDragableModel(true)
       return false
     }
-   await updateItem(productEdit,itemsData)
-   setItemsData({
-    name:'',
-    stock:'',
-    units:'',
-    salePrice:'',
-    purchasePrice:'',
-    selectSize:'',
-    size:'',
-    category:''
-  }) 
+  // await updateItem(productEdit,itemsData)
+   const db = await dbConnection()
+ await db.runAsync(
+  `UPDATE products SET
+     name = ?, stock = ?, units = ?, salePrice = ?, purchasePrice = ?,
+     selectSize = ?, size = ?, category = ?
+   WHERE id = ?`,
+  [
+    itemsData.name,
+    itemsData.stock,
+    itemsData.units,
+    itemsData.salePrice,
+    itemsData.purchasePrice,
+    itemsData.selectSize,
+    itemsData.size,
+    itemsData.category,
+    itemsData.id
+  ]
+);
      setProductEdit(null)
      setOpenDragableModel(false) 
   
@@ -117,9 +130,25 @@ export default function Store() {
  const [activeCategoryButton,setActiveCategoryButton] = useState(null)
  
 
-const filterProductWithCategoryOrStock = itemsRecords.filter((items)=>{
- return activeCategoryButton ? activeCategoryButton == items?.category.toUpperCase()  : items
-}).sort((a,b)=> a.stock - b.stock)
+const [filterProductWithCategoryOrStock,setFilterProductWithCategoryOrStock] = useState([])
+
+useEffect(()=>{
+  const productFilter = async ()=>{
+    const db = await dbConnection();
+    const results = await db.getAllAsync(
+  `SELECT * FROM products
+  WHERE (:activeCategoryButton IS NULL OR UPPER(category) = :activeCategoryButton)
+  ORDER BY stock ASC
+  LIMIT 150;`,
+  [activeCategoryButton ? activeCategoryButton.toUpperCase() : null]
+);
+    setFilterProductWithCategoryOrStock(results)
+  }
+  productFilter()
+},[activeCategoryButton])
+// const filterProductWithCategoryOrStock = itemsRecords?.filter((items)=>{
+// return activeCategoryButton ? activeCategoryButton == items?.category.toUpperCase()  : items
+// }).sort((a,b)=> a.stock - b.stock)
   const [searchProduct,setSearchProduct] = useState(null)
  const [searchText,setSearchText] = useState('')
   const searchHandler = (text)=>{
@@ -132,7 +161,7 @@ const filterProductWithCategoryOrStock = itemsRecords.filter((items)=>{
    
   }
   
-
+if (!themes) return null;
   return (
     <View style={{backgroundColor:themes.theme.backgroundTheme,position:'relative',flex:1,paddingBottom:90}}>
     <DragableModel

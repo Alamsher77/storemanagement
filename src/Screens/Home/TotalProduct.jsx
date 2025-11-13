@@ -17,7 +17,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign'
 export default function TotalProduct() {
 const {themes,itemsRecords} = useContext(ProductContext)
 
-const filterProductData = itemsRecords.filter((items)=> (items?.stock <= 2 || (items.salePrice <= 10 && items?.stock <= 10)))
+const filterProductData = itemsRecords.filter((items)=> (items?.stock <= 0 || (items.salePrice <= 10 && items?.stock <= 10)))
   const htmlContent = `
   <!DOCTYPE html>
   <html lang="en">
@@ -72,7 +72,7 @@ const filterProductData = itemsRecords.filter((items)=> (items?.stock <= 2 || (i
    
   }
   
-   
+   if (!themes) return null;
   return ( 
     <>
        <WebView style={{flex:0.80}} source={{html:htmlContent,baseUrl:''}} /> 

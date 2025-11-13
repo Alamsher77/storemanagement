@@ -13,21 +13,18 @@ import {
   StyleSheet,
   Text,
   View,
-  Alert
+  Alert,
+  StatusBar,
+  useColorScheme
 } from 'react-native';
 import Colors from './src/Colors';
 import {
   ContextContent
 } from './src/Context/Contextcontent'
 import * as Updates from "expo-updates"; 
-import SplashScreen from './src/page/SplashScreen'
-import * as SplashScreens from 'expo-splash-screen';
-
-SplashScreens.preventAutoHideAsync();
 export default function App() {
-  const [pageRady,setPageRady] = useState(false)
  useEffect(() => {
-    async function checkUpdate() {
+   async function checkUpdate() {
       try {
         const update = await Updates.checkForUpdateAsync();
         if (update.isAvailable) {
@@ -42,16 +39,6 @@ export default function App() {
 
     checkUpdate();
   }, []);
-
-useEffect(()=>{
-  setTimeout(function() {
-    setPageRady(true)
-    SplashScreens.hide()
-  }, 2200);
-},[])
-if (!pageRady) {
-  return <SplashScreen />
-}
 
   return (
     <ContextContent>

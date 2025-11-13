@@ -74,7 +74,7 @@ console.log(e.message);
 Alert.alert('Error', 'Could not pick image');
 }
 }
-
+if (!themes) return null;
   return (
      <ScrollContainer style={{gap:6}}>
       <Text style={{color,alignSelf:'center',fontWeight:'700'}}>All the information fill carefull</Text>
@@ -83,21 +83,67 @@ Alert.alert('Error', 'Could not pick image');
         <TextInput value={userData.beusnessName} onChangeText={(text)=> setUserData({...userData,beusnessName:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,}} placeholderTextColor={color} placeholder="Beusness Name" /> 
         
         <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-           <TextInput value={userData.phone} onChangeText={(text)=> setUserData({...userData,phone:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} placeholderTextColor={color} placeholder="Phone Number" /> 
-            <TextInput value={userData.upiId} onChangeText={(text)=> setUserData({...userData,upiId:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} placeholderTextColor={color} placeholder="UPI ID 3948752893@xyz" /> 
+           <TextInput 
+           value={userData.phone} 
+           onChangeText={(text)=> setUserData({...userData,phone:text})} 
+           style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} 
+           placeholderTextColor={color}
+           keyboardType="phone-pad"
+           placeholder="Phone Number"
+           /> 
+            <TextInput 
+            value={userData.upiId} 
+            onChangeText={(text)=> setUserData({...userData,upiId:text})} 
+            style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} 
+            placeholderTextColor={color} 
+            placeholder="UPI ID 3948752893@xyz" /> 
         </View>
-        <Text style={{color,marginTop:20}}>Optional ?</Text>
+        <Text 
+        style={{color,marginTop:20}}>Optional ?</Text>
         <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-           <TextInput value={userData.bankHolderName} onChangeText={(text)=> setUserData({...userData,bankHolderName:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} placeholderTextColor={color} placeholder="Bank Holder Name" /> 
-            <TextInput value={userData.accountNumber} onChangeText={(text)=> setUserData({...userData,accountNumber:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} placeholderTextColor={color} placeholder="Account Number" /> 
+           <TextInput 
+           value={userData.bankHolderName} 
+           onChangeText={(text)=> setUserData({...userData,bankHolderName:text})} 
+           style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} 
+           placeholderTextColor={color} 
+           placeholder="Bank Holder Name" /> 
+            <TextInput 
+            value={userData.accountNumber} 
+            onChangeText={(text)=> setUserData({...userData,accountNumber:text})} 
+            style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} 
+            placeholderTextColor={color} 
+            placeholder="Account Number" 
+            keyboardType="phone-pad"
+            /> 
         </View>
         <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-           <TextInput value={userData.bankName} onChangeText={(text)=> setUserData({...userData,bankName:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} placeholderTextColor={color} placeholder="Bank Name" /> 
-            <TextInput value={userData.ifsccode} onChangeText={(text)=> setUserData({...userData,ifsccode:text.toUpperCase()})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} placeholderTextColor={color} placeholder="IFSC CODE" /> 
+           <TextInput 
+           value={userData.bankName} 
+           onChangeText={(text)=> setUserData({...userData,bankName:text})} 
+           style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} 
+           placeholderTextColor={color} 
+           placeholder="Bank Name" /> 
+            <TextInput 
+            value={userData.ifsccode} 
+            onChangeText={(text)=> setUserData({...userData,ifsccode:text.toUpperCase()})} 
+            style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,width:180}} 
+            placeholderTextColor={color}
+            placeholder="IFSC CODE"
+            /> 
         </View>
-        <TextInput value={userData.Adress} onChangeText={(text)=> setUserData({...userData,Adress:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,}} placeholderTextColor={color} placeholder="Adress" /> 
-          <TextInput value={userData.Email} onChangeText={(text)=> setUserData({...userData,Email:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,}} placeholderTextColor={color} placeholder="Email" /> 
-          <TextInput value={userData.Web} onChangeText={(text)=> setUserData({...userData,Web:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,}} placeholderTextColor={color} placeholder="Web Address" /> 
+        <TextInput
+          value={userData.Adress} 
+          onChangeText={(text)=> setUserData({...userData,Adress:text})} 
+          style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,}} 
+          placeholderTextColor={color} 
+          placeholder="Adress"
+          /> 
+          <TextInput value={userData.Email} onChangeText={(text)=> setUserData({...userData,Email:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,}} placeholderTextColor={color} placeholder="Email" 
+          keyboardType="email-address"
+          /> 
+          <TextInput value={userData.Web} onChangeText={(text)=> setUserData({...userData,Web:text})} style={{borderBottomWidth:1,borderColor:color,color,paddingVertical:2,}} placeholderTextColor={color}
+          keyboardType="url"
+          placeholder="Web Address" /> 
        
         
         {

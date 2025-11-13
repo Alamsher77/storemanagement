@@ -8,6 +8,7 @@ import {
   updateItem,
   readDataSale
 } from '../Storage/jsonStorage'
+import {dbConnection,addSale,addProduct} from '../Storage/Database'
 import {useColorScheme} from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Saleanalysis from '../analysis'
@@ -45,11 +46,21 @@ export const ContextContent = ({children})=>{
   const fetchData = async ()=>{
     try {
       setdataloading(true)
-  const data =   await readData()
-  const saleData = await readDataSale()
+//  const data =   await readData()
+  //const saleData = await readDataSale()
+ const db = await dbConnection()
+ const data = await db.getAllAsync("SELECT * FROM products  ORDER BY id DESC;")
+ const saleData = await db.getAllAsync("SELECT * FROM product_sale ORDER BY id DESC ;")
   setdataloading(false)
-   setItemsRecords(data?.reverse(-1))  
-   setSaleRecords(saleData?.reverse(-1))
+   setItemsRecords(data)  
+  // some sale recors is string to pase to array ya object 
+  const  someSaleDataToParse = saleData.map((saleItems)=>{
+    const parseDues = JSON.parse(saleItems.dues)
+    const parseProducts = JSON.parse(saleItems.products)
+    const updateAtJson =  JSON.parse(saleItems.updateAt)
+    return {...saleItems,dues:parseDues,products:parseProducts,updateAt:updateAtJson}
+  }) 
+  setSaleRecords(someSaleDataToParse)  
     } catch (e) {
       setdataloading(false)
       console.log(e.message)
@@ -57,8 +68,8 @@ export const ContextContent = ({children})=>{
   }
   const themes =  useColors() 
   useEffect(()=>{ 
-  fetchData(); 
-  localStorageDatafetch()
+   fetchData(); 
+   localStorageDatafetch()
 },[])
    
   useEffect(()=>{

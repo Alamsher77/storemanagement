@@ -1,24 +1,23 @@
-import * as FileSystem from "expo-file-system";
-
+import { File, Paths } from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 // product ka storage data
-const fileUri = FileSystem.documentDirectory + "product.json";
-
-
-
+ const fileUri = FileSystem.documentDirectory + "product.json";
+ 
+ 
 // ✅ File check or create empty file
 export async function initFile() {
-  const fileInfo = await FileSystem.getInfoAsync(fileUri); 
-  if (!fileInfo.exists) {
-    await FileSystem.writeAsStringAsync(fileUri, JSON.stringify([]));
-  }
+   const fileInfo = await FileSystem.getInfoAsync(fileUri); 
+   if (!fileInfo.exists) {
+     await FileSystem.writeAsStringAsync(fileUri, JSON.stringify([]));
+   }
 }
 
 // ✅ Read file
 export async function readData() {
   try {
-    await initFile()
-    const data = await FileSystem.readAsStringAsync(fileUri);
-    return JSON.parse(data);
+     await initFile()
+     const data = await FileSystem.readAsStringAsync(fileUri);
+     return JSON.parse(data);
   } catch (error) {
     console.error("Error reading file:", error);
     return [];
@@ -66,23 +65,22 @@ export async function deleteItem(id) {
 
 // Sale ka Storage Data 
 
-const fileUriSale = FileSystem.documentDirectory + "sale.json";
-
+ const fileUriSale = FileSystem.documentDirectory + "sale.json"; 
 // ✅ File check or create empty file
 export async function initFileSale() {
-  const fileInfo = await FileSystem.getInfoAsync(fileUriSale);
+   const fileInfo = await FileSystem.getInfoAsync(fileUriSale);
   
-  if (!fileInfo.exists) {
+   if (!fileInfo.exists) {
     await FileSystem.writeAsStringAsync(fileUriSale, JSON.stringify([]));
-  }
+   }
 }
 
 // ✅ Read file
 export async function readDataSale() {
   try {
-    await initFileSale()
-    const data = await FileSystem.readAsStringAsync(fileUriSale);
-    return JSON.parse(data);
+     await initFileSale()
+     const data = await FileSystem.readAsStringAsync(fileUriSale);
+     return JSON.parse(data);
   } catch (error) {
     console.error("Error reading file:", error);
     return [];
@@ -111,18 +109,27 @@ export async function addItemSale(customer) {
 }
 
 // ✅ Update item
-export async function updateItemSale(id, newName) {
+export async function updateItemSale(id, newSale) {
+  try {
   const data = await readDataSale();
   const updated = data.map((item) =>
-    item.id === id ? { ...newName} : item
+    item.id === id ? { ...newSale} : item
   );
-  console.log(newName)
   await writeDataSale(updated);
+  return {...newSale,success:true,message:'Bill updated SuccessFull'};
+    
+  } catch (e) {
+     return {success:false,message:e.message};
+  }
 }
 
 // ✅ Delete item
 export async function deleteItemSale(id) {
   const data = await readDataSale();
-  const filtered = data.filter((item) => item.id !== id);
+  const filtered = data.filter((item) => item.id !== id); 
   await writeDataSale(filtered);
 }
+
+
+
+// sqlite configration

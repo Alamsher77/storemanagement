@@ -1,11 +1,14 @@
 import Currancy from '../Currancy'
-import numberToWords from "number-to-words";   
+import DateFormate from '../dateFormate'
+import numberToWords from "number-to-words";
 const htmlContent = ({bill,localUserData})=>{
 
  const totalQuantity = bill?.products?.reduce((prev,nex)=>{return prev + Number(nex?.quantity)},0)
  
-const words = numberToWords.toWords(Number(bill?.totalAmount || 0))
-
+const words = numberToWords.toWords(Number(bill?.totalAmount || 0)) 
+const receiveDuesAmount = bill?.dues && bill?.dues?.dues ? bill?.dues?.duesAmount?.reduce((prev,next)=>{return prev + Number(next?.duesAmount)},0) : null
+const TotalDuesAmount = receiveDuesAmount &&  bill?.totalAmount - receiveDuesAmount
+const TotalDiscount = bill?.totalProductPrice ? (bill?.totalProductPrice - bill?.totalAmount) >= 0 && (bill?.totalProductPrice - bill?.totalAmount) : 0 
 return (`
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +70,7 @@ return (`
       padding: 8px 12px;
       text-align: end;
     }
-    table th:first-child, table td:first-child {
+    table th:nth-child(2), table td:nth-child(2) {
       border-bottom: 1px solid #555;
       padding: 8px 12px;
       text-align: start;
@@ -119,7 +122,7 @@ return (`
 
     
      <div>
-       <h3 style="color:#ff6600">${localUserData?.beusnessName ? localUserData?.beusnessName :"Store"}</h3>
+       <h3 style="color:#ff6600">${localUserData?.beusnessName ? localUserData?.beusnessName :"STORE MANAGEMENT"}</h3>
        <p>Address :${localUserData?.Adress ? localUserData?.Adress : "No"}</p>
        <p>Phone : ${localUserData?.phone ? localUserData?.phone :"No"}</p>
        <p>Email : ${localUserData?.Email ? localUserData?.Email : "No"}</p>
@@ -148,6 +151,7 @@ return (`
     <table>
       <thead>
         <tr>
+          <th>S/R</th>
           <th>ITEMS</th>
           <th>QTY.</th>
           <th>RATE</th>
@@ -156,9 +160,10 @@ return (`
       </thead>
       <tbody>
          ${
-         bill?.products?.map((items)=>{
+         bill?.products?.map((items,index)=>{ 
            return (`
           <tr>
+          <td>${index + 1}</td>
           <td>${items?.name}</td>
           <td>${items?.quantity} ${(items?.units || '').toUpperCase()}</td>
           <td>${items?.salePrice}</td>
@@ -167,35 +172,53 @@ return (`
          }).join('')
         }
         </tbody>
-    </table> 
+    </table>  
     <div style="display:flex;border-bottom:solid 1px black;border-top:solid 1px black; justify-content:space-between;margin-top:50px ;padding:4px 8px">
       <p style="font-weight:bolder;font-size:20px;" >SUBTOTAL</p>
       <p style="font-weight:bolder;font-size:20px;" >${totalQuantity}</p>
-      <p style="font-weight:bolder;font-size:20px;" >${Currancy(bill?.totalAmount)}</p>
+      <p style="font-weight:bolder;font-size:20px;" >${Currancy(bill?.totalProductPrice ? bill?.totalProductPrice : bill?.totalAmount)}</p>
     </div>
-    <div class="totals"> 
-      <h3>Total: ${Currancy(bill?.totalAmount)}</h3>
-      <h4 style="text-transform:capitalize">Total Amount (in words): ${words} Rupees</h4>
-    </div>
-   <div style="display:flex;justify-content:space-between">
-    <div>
-    <div class="bank-details">
+    
+    <div style="display:flex;justify-content:space-between;"> <div class="bank-details">
       <h3>Bank Details</h3>
       Name: ${localUserData && localUserData?.bankHolderName ? localUserData?.bankHolderName : 'none'} <br>
       IFSC Code: ${localUserData && localUserData?.ifsccode ? localUserData?.ifsccode : 'none'} <br>
       Account No: ${localUserData && localUserData?.accountNumber ? localUserData?.accountNumber : 'none'} <br>
-      Bank: ${localUserData && localUserData?.bankName ? localUserData?.bankName : 'none'}
+      Bank: ${localUserData && localUserData?.bankName ? localUserData?.bankName : 'none'} 
     </div>
-
-    <div class="terms">
+    ${bill?.dues && bill?.dues?.dues ?
+   ` <div style="width:300px;margin-top:20px">
+     <h3 style="font-weight:bolder;font-size:18px;">Dues Transactions </h3>
+      
+     ${bill?.dues?.duesAmount?.map((item,index)=>{ 
+       return`
+       <div style="display:flex;gap:20px;">
+        <p>${index+1}. ${DateFormate(item?.duesDate)}</p> <p>${Currancy(item?.duesAmount)}</p>
+       </div>
+       `
+     }).join('')}
+    </div>` : ''
+    }
+    
+    <div class="totals"> 
+      <h3>Total Amount: ${Currancy(bill?.totalProductPrice ? bill?.totalProductPrice : bill?.totalAmount)}</h3>
+      ${TotalDiscount > 0 ? `<h3>Discount: ${Currancy(TotalDiscount)}</h3>` : ''}
+      <h3>Grand Total Amount: ${Currancy(bill?.totalAmount)}</h3>
+       <h4 style="text-transform:capitalize">Total Amount (in words): ${words} Rupees</h4>
+       </br>
+      ${bill?.dues && bill?.dues?.dues ? `<h3> Receive Amount: ${Currancy(receiveDuesAmount)}</h3>` : ''}
+      ${bill?.dues && bill?.dues?.dues ? `<h3> Dues Amount: ${Currancy(TotalDuesAmount)}</h3>` : ''} 
+      
+      
+    </div>   
+  </div>
+  
+  <div class="terms">
       <h3>Terms and Conditions</h3>
       1. Goods once sold will not be taken back or exchanged.<br>
       2. All disputes are subject to Garhwa / Jharkhand jurisdiction only.<br>
        Any enqairy Please contact To ${localUserData ? localUserData?.phone : 1234567890} my number.
-    </div>
-  </div>
-   
-</div>
+    </div> 
     <footer>
       Invoice created By <strong>${localUserData ? localUserData?.beusnessName : 'Store Managment'}</strong>
     </footer>

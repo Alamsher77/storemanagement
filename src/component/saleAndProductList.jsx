@@ -1,5 +1,5 @@
 import {View,Text,useColorScheme,TouchableOpacity,TextInput,Button} from 'react-native'
-import {useContext,useState} from 'react'
+import {useContext,useState,useRef,useEffect} from 'react'
 import BoxContainer from './BoxContainer'
 import Colors from '../Colors'
 import Currancy from '../Currancy'
@@ -63,11 +63,11 @@ const ProductList = ({items,QuantityDecreese,QuantityIncreese,quantitydata})=>{
    </BoxContainer>
   )
 }
-const SaleProductList = ({items,QuantityDecreese,QuantityIncreese,setSaleProductItems})=>{
+const SaleProductList = ({items,QuantityDecreese,QuantityIncreese,setSaleProductItems,QuantityChangest})=>{
   const [showChangeText,setShowChangeText] = useState(false)
   const [changeText,setChangeText] = useState(items?.salePrice)
   const {themes} = useContext(ProductContext) 
-  
+  const [quantityValue,setQuantityValue] = useState(items?.quantity.toString())
   const updateHandler = ()=>{
     setShowChangeText(false)
      setSaleProductItems((prev) => { 
@@ -76,10 +76,27 @@ const SaleProductList = ({items,QuantityDecreese,QuantityIncreese,setSaleProduct
     ); 
 });
   }
+  const typingTimout = useRef(null)
+  const QuantityChangestHandler = (receiveText)=>{
+           setQuantityValue(receiveText)
+       if(isNaN(receiveText)) return false 
+       if (typingTimout.current) {  
+             clearTimeout(typingTimout.current)
+           }
+      typingTimout.current = setTimeout(() => {
+          QuantityChangest(receiveText,items)   
+           
+        }, 1000);
+       
+  }
+  
+  useEffect(()=>{
+    setQuantityValue(items?.quantity.toString())
+  },[items])
   return (
     showChangeText ?
     <BoxContainer style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
-      <TextInput onChangeText={(text)=>setChangeText(text)} value={changeText} style={{width:120,borderWidth:1,borderColor:themes.theme.color,paddingVertical:2,paddingHorizontal:6,padding:0,color:themes.theme.color}} />
+      <TextInput onChangeText={(text)=>setChangeText(text)} value={changeText.toString()} style={{width:120,borderWidth:1,borderColor:themes.theme.color,paddingVertical:2,paddingHorizontal:6,padding:0,color:themes.theme.color}} />
      <TouchableOpacity onPress={updateHandler} style={{paddingHorizontal:8,paddingVertical:3,outlineWidth:1,outlineColor:themes.mainColor,borderRadius:6}}>
       <Text style={{color:themes.mainColor}}>Update</Text>
      </TouchableOpacity>
@@ -131,8 +148,13 @@ const SaleProductList = ({items,QuantityDecreese,QuantityIncreese,setSaleProduct
           <TouchableOpacity onPress={()=>QuantityIncreese(items)} style={{paddingHorizontal:6,backgroundColor:themes.mainColor,paddingVertical:3,borderRadius:4}}>
             <FontAwesome name="plus-circle"  size={18} color="#fff" />
           </TouchableOpacity>
-          {/* <TextInput value={quantitydata ? quantitydata.quantity : 0} style={{width:30,color:themes.theme.color,textAlign:'center'}}  /> */}
-          <Text style={{width:30,color:themes.theme.color,textAlign:'center'}}>{items.quantity}</Text>
+           <TextInput keyboarderType='phone-pad' onChangeText={(text)=>QuantityChangestHandler(text)} value={quantityValue} style={{width:30,color:themes.theme.color,textAlign:'center',paddingHorizontal:0,paddingVertical:0,fontWeight:'700'}}  /> 
+         
+          {
+            /*
+            <Text style={{width:30,color:themes.theme.color,textAlign:'center'}}>{items.quantity}</Text>
+            */
+          }
           <TouchableOpacity onPress={()=>QuantityDecreese(items)} style={{paddingHorizontal:6,backgroundColor:themes.mainColor,paddingVertical:3,borderRadius:4}}>
             <FontAwesome name="minus-circle" size={18}  color="#fff" />
           </TouchableOpacity>
@@ -149,15 +171,24 @@ const CustomerBillRecords = ({items,index})=>{
     const {themes,SaleRecords} = useContext(ProductContext)
   const TotalSoldPrice = items?.products?.reduce((prev,next)=> {return prev + Number(next?.salePrice) * Number(next?.quantity)},0) 
   const TotalQuantity = items?.products?.reduce((prev,next)=>{return prev + Number(next?.quantity)},0)
+  
+   const totalduesSale = items?.dues && items?.dues.dues ? items?.dues.duesAmount.reduce((prev,next)=> prev + Number(next?.duesAmount),0): 0
+const totaldues = totalduesSale > 0 ? Number(items.totalAmount) - totalduesSale : 0
   return(
     <BoxContainer>
-    <TouchableOpacity onPress={()=> navigation.navigate('Bill',{bill:{...items,invoice:Number(SaleRecords?.length - index )}})}>
+    <TouchableOpacity onPress={()=> navigation.navigate('Bill',{saleBill:{...items,invoice:Number(SaleRecords?.length - index )}})}>
+    <View style={{flexDirection:"row",justifyContent:"space-between"}}>
       <Text style={{color:themes.theme.color,fontWeight:'500',fontSize:12}}>{items?.customerName}</Text>
+      {
+      totaldues > 0 && 
+      <View style={{backgroundColor:Colors.mainColor,width:8,height:8,borderRadius:50,}} />
+      }
+    </View>
       <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'flex-end'}}>
         <Text style={{color:themes.theme.color,fontSize:12}}>Date : {items?.date} & Time : {items?.time}</Text>
         <View style={{alignItems:'flex-end'}}>
         <Text style={{color:'#777',fontWeight:'800',}} ><Text style={{fontSize:12,fontWeight:'600',color:themes.theme.color}}>Total Quantity : </Text>{String(TotalQuantity)?.padStart(2,'0')}</Text>
-        <Text style={{color:themes.mainColor,fontWeight:'800',}}><Text style={{fontSize:12,fontWeight:'600',color:themes.theme.color}}>TotalPrice : </Text>{Currancy(TotalSoldPrice)}</Text>
+        <Text style={{color:themes.mainColor,fontWeight:'800',}}><Text style={{fontSize:12,fontWeight:'600',color:themes.theme.color}}>TotalPrice : </Text>{Currancy(totaldues > 0 ? totaldues : items?.totalAmount)}</Text>
          </View>
       </View>
     </TouchableOpacity>

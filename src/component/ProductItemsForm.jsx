@@ -24,13 +24,13 @@ const ProductItemsForm = ({setItemsData,itemsData,setOpenDragableModel,fetchData
      <View style={{gap:7,marginVertical:5}}>
      <TextInput value={lable && itemsData?.name} onChangeText={(text)=>changeItemsHandeler(text,'name')}  placeholder='Items Name' placeholderTextColor={themes.theme.color} style={[styles.inputeFilds,{color:themes.theme.color}]} />
      <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-      <TextInput value={lable && itemsData?.stock} onChangeText={(text)=>changeItemsHandeler(text,'stock')}   placeholder='Stock' placeholderTextColor={themes.theme.color} style={[styles.inputeFilds,{width:'49%',color:themes.theme.color}]} />
+      <TextInput keyboardType="number-pad" value={lable && itemsData?.stock} onChangeText={(text)=>changeItemsHandeler(text,'stock')}   placeholder='Stock' placeholderTextColor={themes.theme.color} style={[styles.inputeFilds,{width:'49%',color:themes.theme.color}]} />
         {/*units inpute text */}
         <OptionsInputeText itemsData={itemsData?.units?.toUpperCase()} lable={lable} onChangeText={(text)=>changeItemsHandeler(text,'units')} optionsButton ={unitOption}/>
      </View>
      <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-      <TextInput value={lable && itemsData?.salePrice} onChangeText={(text)=>changeItemsHandeler(text,'salePrice')} placeholder='Sele Price' placeholderTextColor={themes.theme.color} style={[styles.inputeFilds,{width:'49%',color:themes.theme.color}]} /> 
-      <TextInput value={lable && itemsData?.purchasePrice} onChangeText={(text)=>changeItemsHandeler(text,'purchasePrice')} placeholder='Purchase Price' placeholderTextColor={themes.theme.color} style={[styles.inputeFilds,{width:'49%',color:themes.theme.color}]} /> 
+      <TextInput keyboardType="number-pad" value={lable && itemsData?.salePrice.toString()} onChangeText={(text)=>changeItemsHandeler(text,'salePrice')} placeholder='Sele Price' placeholderTextColor={themes.theme.color} style={[styles.inputeFilds,{width:'49%',color:themes.theme.color}]} /> 
+      <TextInput keyboardType="number-pad" value={lable && itemsData?.purchasePrice.toString()} onChangeText={(text)=>changeItemsHandeler(text,'purchasePrice')} placeholder='Purchase Price' placeholderTextColor={themes.theme.color} style={[styles.inputeFilds,{width:'49%',color:themes.theme.color}]} /> 
      </View> 
       <View style={{flexDirection:'row',justifyContent:'space-between'}}>
       <OptionsInputeText itemsData={updateSizeOptions} lable={lable}   onChangeText={(text)=>changeItemsHandeler(text,'selectSize')} optionsButton ={sizeOption}/>
