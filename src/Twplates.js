@@ -1,6 +1,6 @@
 
 // Color.ts
-export const Color = {
+const Color = {
     grayscale: {
         50:  "#000000",
         100:  "#1A1A1A",
@@ -301,3 +301,4 @@ export const Color = {
       950: "#4c0519",
     },
   };
+export default Color

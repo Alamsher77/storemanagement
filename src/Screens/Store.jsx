@@ -46,6 +46,7 @@ export default function Store() {
   
   const {themes,fetchData,itemsRecords,dataloading,productCategory} = useContext(ProductContext)
   const [openDragableModel,setOpenDragableModel] = useState(false) 
+  const [loading,setLoading] = useState(false) 
  
    const [itemsData,setItemsData] = useState({
     name:'',

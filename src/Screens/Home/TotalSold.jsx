@@ -254,18 +254,10 @@ const db = await dbConnection();
 for (const singleOfSale of updatedata) { 
   await db.runAsync(
   `UPDATE products SET
-    name = ?, stock = ?, units = ?, salePrice = ?, purchasePrice = ?,
-    selectSize = ?, size = ?, category = ?
+    stock = ?
   WHERE id = ?`,
   [
-    singleOfSale.name,
     singleOfSale.stock,
-    singleOfSale.units,
-    singleOfSale.salePrice,
-    singleOfSale.purchasePrice,
-    singleOfSale.selectSize,
-    singleOfSale.size,
-    singleOfSale.category,
     singleOfSale.id
   ]
 );
