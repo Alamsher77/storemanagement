@@ -16,32 +16,40 @@ import {addItemSale,readData,writeData,updateItemSale} from '../../Storage/jsonS
 import {dbConnection,addSale} from '../../Storage/Database'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DateFormate from '../../dateFormate'
-
+ import {useSelector,useDispatch } from "react-redux";
+ import {createSaleData,editSale} from '../../redux/saleSlice'
+ import AsyncStorage from '@react-native-async-storage/async-storage';
 const {height:ScreenHeight} = Dimensions.get('window')
-export default function TotalSold({navigation}) { 
+export default function TotalSold({navigation}) {
+  const dispatch = useDispatch()
    const route = useRoute();
     const prodId = route.params;
   const navigations = useNavigation()
-  const {itemsRecords,themes,SaleRecords,fetchData} = useContext(ProductContext) 
+  const {products:itemsRecords} = useSelector((state)=> state.product)
+  const {sale:SaleRecords} = useSelector((state)=> state.sale)
+  const {themes,fetchData} = useContext(ProductContext) 
    const [searchProduct,setSearchProduct] = useState(null)
   const [searchText,setSearchText] = useState('')
   const [isUp,setIsUp] = useState(false)
    const animatedPosition = useRef(new Animated.Value(ScreenHeight)).current;
    const animatedSold = useRef(new Animated.Value(ScreenHeight)).current;
    
-  
-   const heightDecreeseAndIncreesAndHide = ()=>{
+ 
+   const heightDecreeseAndIncreesAndHide = (props)=>{
      Animated.timing(animatedPosition, {
       toValue: isUp  ? ScreenHeight : ScreenHeight * 0.7 , // agar upar hai to neeche, agar neeche hai to upar
       duration: 500,
       useNativeDriver: false, // top property ke liye false
     }).start();
-    Animated.timing(animatedSold, {
+     Animated.timing(animatedSold, {
       toValue: isUp ? ScreenHeight : ScreenHeight * 0.72 , // agar upar hai to neeche, agar neeche hai to upar
       duration: 500,
       useNativeDriver: false, // top property ke liye false
     }).start();
+  
      setIsUp(!isUp); // state toggle
+   
+     
    }
    const heightDecreeseAndIncrees = ()=>{
      Animated.timing(animatedPosition, {
@@ -53,8 +61,7 @@ export default function TotalSold({navigation}) {
       toValue: isUp ? 20 : ScreenHeight * 0.72, // agar upar hai to neeche, agar neeche hai to upar
       duration: 500,
       useNativeDriver: false, // top property ke liye false
-    }).start();
-
+    }).start(); 
     setIsUp(!isUp); // state toggle
   }
   // yadi sale ko edit kre to 
@@ -69,6 +76,7 @@ export default function TotalSold({navigation}) {
 // filter swithc 
 const [filterSwitch,setFilterSwitch] = useState(false)
 
+// searchHandler for products 
   const searchHandler = (text)=>{
     setSearchText(text)
     const filterseachitems = text.length === 0 ? null : itemsRecords.filter((items)=>{  
@@ -104,12 +112,14 @@ const [filterSwitch,setFilterSwitch] = useState(false)
   
   // quantity increese and decreese 
   const [SaleProductItems,setSaleProductItems] = useState(prodId ? prodId?.products : [])
+  
+  // QuantityIncreese
   const QuantityIncreese = (itemsData)=>{
     setSaleProductItems((prev) => {
   // Check if item already exists
   const exists = prev.find((p) => p.id === itemsData.id);
 
-
+ 
   if (exists) {
     // Agar already hai to bas quantity change karo
     return prev.map((p) =>
@@ -125,11 +135,14 @@ const [filterSwitch,setFilterSwitch] = useState(false)
     ];
   }
 });
+
    if (SaleProductItems.length >= 0 && !isUp) {
      heightDecreeseAndIncreesAndHide()
    }
   }
-  const QuantityDecreese = (itemsData)=>{
+  
+  // QuantityDecreese
+  const QuantityDecreese = async (itemsData)=>{
       setSaleProductItems((prev) => {
   // Check if item already exists
   const exists = prev.find((p) => p.id === itemsData.id);
@@ -143,9 +156,14 @@ const [filterSwitch,setFilterSwitch] = useState(false)
   }
 });
   if (SaleProductItems.length <= 0 && isUp) {
-     heightDecreeseAndIncreesAndHide()
-   }
+    heightDecreeseAndIncreesAndHide()  
+  }
+  if(SaleProductItems?.length <= 1){
+      await AsyncStorage.removeItem('saleWithoutFinish')
+  }
   } 
+  
+  // QuantityChangest
   const QuantityChangest = (textValue,itemsData)=>{ 
       setSaleProductItems((prev) => {
   // Check if item already exists
@@ -160,16 +178,22 @@ const [filterSwitch,setFilterSwitch] = useState(false)
   // }
   } 
   
+  // TotalProductPrice
   const TotalProductPrice = SaleProductItems?.reduce((prev,next)=>{
     return prev + Number(next.salePrice) * Number(next.quantity)
   },0)
+  
+  // TotalProductIncome
   const TotalProductIncome = SaleProductItems?.reduce((prev,next)=>{
     return prev + (Number(next.salePrice) - Number(next.purchasePrice)) * Number(next.quantity)
   },0)
+  
+  // TotalPurchasePrice
   const TotalPurchasePrice = SaleProductItems?.reduce((prev,next)=>{
     return prev +  Number(next.purchasePrice) * Number(next.quantity)
   },0) 
 
+// configur sale for dues 
  const [reciveAmount,setReciveAmount] = useState(prodId && prodId ? prodId?.totalAmount : null)
  const [grandTotalProductPrice,setGrandTotalProductPrice] = useState(0)
  const [grandTotalProductIncome,setGrandTotalProductIncome] = useState(0)
@@ -264,8 +288,9 @@ for (const singleOfSale of updatedata) {
 } 
   setSaleProductItems([])
   setCustomerName('')
-  fetchData()
+    await AsyncStorage.removeItem('saleWithoutFinish')
   navigations.navigate('Bill',{saleBill:{...saleDetails,invoice:Number(SaleRecords?.length +1 )}})
+  dispatch(createSaleData(createdSale.data))
   Toast.show({type:'success',text1:createdSale.message})
     } catch (e) { 
      Toast.show({type:'error',text1:e.message})
@@ -281,9 +306,9 @@ for (const singleOfSale of updatedata) {
    const productsJson = await JSON.stringify(updateEsistingRecords.products)
    const duesJson = await JSON.stringify(updateEsistingRecords.dues)
    const updateAtJson = await JSON.stringify(updateEsistingRecords.updateAt)
-  
+   
     const db = await dbConnection(); 
-     await db.runAsync(
+    await db.runAsync(
   `UPDATE product_sale SET
     customerName = ?, products = ?, date = ?, time = ?, dues = ?,
     totalAmount = ?, totalIncome = ?, totalProductPrice = ?, updateAt = ?
@@ -301,16 +326,26 @@ for (const singleOfSale of updatedata) {
     updateEsistingRecords.id
   ]
 );
-    // const updateResult = await updateItemSale(prodId.id,updateEsistingRecords)
-    //   if (!updateResult.success) {
-    //   Toast.show({type:'error',text1:updateResult.message})
-    //   return false
-    //   }
+      const cleanRecord = {
+        ...updateEsistingRecords,
+        dues: {
+          ...updateEsistingRecords.dues,
+          duesAmount: updateEsistingRecords.dues.duesAmount.map(d => ({
+            ...d,
+            duesDate:
+              typeof d.duesDate === 'string'
+                ? d.duesDate
+                : d.duesDate.toISOString(),
+          })),
+        },
+      };
+      
+      dispatch(editSale(cleanRecord));
       Toast.show({type:'success',text1:"Existing Sale updated !!"})
-     setTimeout(() => {
-       navigation.goBack(); 
-       // Page1 will auto-refresh using useFocusEffect
-       }, 200);
+    setTimeout(() => {
+      navigation.goBack(); 
+      // Page1 will auto-refresh using useFocusEffect
+      }, 200);
     } catch (e) { 
       console.log(e)
      Toast.show({type:'error',text1:e.message})
@@ -356,6 +391,31 @@ totalDuesAmoutOfSale += totaldues > 0 ? Number(singleRecordOfSale.totalAmount) -
     reciverAmountHandeler(String(prodId?.totalAmount)) 
     }
   },[])
+   
+  
+  // store sale history if not created finish 
+  
+  useEffect(()=>{
+    
+    const storeCreateSaleWithoutFinish = async ()=>{
+      try {
+        if (!prodId && SaleProductItems.length > 0 ) { 
+       await AsyncStorage.setItem('saleWithoutFinish', JSON.stringify([...SaleProductItems]));  
+      // await AsyncStorage.removeItem('saleWithoutFinish')
+        }
+        const getUserData = JSON.parse( await AsyncStorage.getItem('saleWithoutFinish'));
+        
+         if (!prodId && getUserData  && !isUp) {
+          setSaleProductItems([...getUserData]) 
+          heightDecreeseAndIncreesAndHide('hide')
+         }
+      } catch (e) {
+        Toast.show({type:'error',text1:e.message})
+        console.log(e.message)
+      }
+    }
+    storeCreateSaleWithoutFinish()
+  },[customerName])
 if (!themes) return null;
   return (
     <> 

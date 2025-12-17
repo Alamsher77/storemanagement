@@ -1,6 +1,4 @@
-import {
-  LineChart
-} from 'react-native-gifted-charts';
+import { LineChart } from 'react-native-gifted-charts';
 //import LinearGradient from 'react-native-linear-gradient';
 import {
   View,
@@ -31,14 +29,12 @@ import {
   ProductContext
 } from '../../Context/Contextcontent'
 import Toast from 'react-native-toast-message'
+ import {useSelector } from "react-redux";
 const MainScreenCharts = ({
-  TotalSaleIncome, monthlySaleData
+  TotalSaleIncome
 })=> {
-  const {
-    SaleRecords,themes
-  } = useContext(ProductContext)
-  const saleobjectData = monthlySaleData?.monthlyIncome
-
+   const {sale:SaleRecords,monthlySaleData} = useSelector((state)=>state.sale) 
+  const {themes} = useContext(ProductContext) 
   const [currentWeekData,setCurrentWeekData] = useState([])
   const [previousWeekData,setPreviousWeekData] = useState([])
   const [weeklyPercentage,setWeeklyPercentage] = useState(0)

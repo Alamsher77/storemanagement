@@ -10,14 +10,17 @@ import {ProductContext} from '../../Context/Contextcontent'
 import Currancy from '../../Currancy' 
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import FontAwesome from 'react-native-vector-icons/FontAwesome' 
 
 import AntDesign from 'react-native-vector-icons/AntDesign' 
+import { useSelector,useDispatch } from "react-redux"; 
 export default function TotalProduct() {
-const {themes,itemsRecords} = useContext(ProductContext)
-
-const filterProductData = itemsRecords.filter((items)=> (items?.stock <= 0 || (items.salePrice <= 10 && items?.stock <= 10)))
+const {themes} = useContext(ProductContext)
+  const dispatch = useDispatch()
+  // get product and productCategory from redux 
+  const {products:itemsRecords,} = useSelector((state)=>state.product)
+const filterProductData = itemsRecords.filter((items)=> (items?.stock <= 0 ))
   const htmlContent = `
   <!DOCTYPE html>
   <html lang="en">

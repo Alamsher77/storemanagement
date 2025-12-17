@@ -14,19 +14,24 @@ import Toast from 'react-native-toast-message'
 import Conformation from '../../component/Conformation'
 import {deleteItemSale} from '../../Storage/jsonStorage'
 import {dbConnection} from '../../Storage/Database'
+import * as DocumentPicker from "expo-document-picker";
+ import {useSelector,useDispatch } from "react-redux";
+  import {deleteSale} from '../../redux/saleSlice'
 // import QRCode from "react-native-qrcode-svg";
 const {height:ScreenHeight} = Dimensions.get('window')
 const ViewSaleBillDetails = ()=>{
-    const {themes,localUserData,fetchData,SaleRecords} = useContext(ProductContext)
+  const dispatch = useDispatch()
+    const {themes,localUserData,fetchData} = useContext(ProductContext)
+    const {sale:SaleRecords} = useSelector((state)=> state.sale)
     const route = useRoute();
     const { saleBill } = route.params; 
     const findCurrentBill = SaleRecords.find(saleitem => saleitem.id == saleBill.id)
     const bill = {...saleBill,...findCurrentBill}
-   
   // const print mobile thermal
   const PrintUsingMobile = async()=>{
       // 1. Init printer module
       try {
+     
     if (bill && localUserData ) {
       const { uri } = await Print.printToFileAsync({html:htmlContent({bill,localUserData}),baseUrl:''});
   
@@ -40,6 +45,8 @@ const ViewSaleBillDetails = ()=>{
   if (await Sharing.isAvailableAsync()) {
     await Sharing.shareAsync(newUri);
   }
+    }else{
+       Toast.show({type:'error',text1:'please provide store details'})
     }
     } catch (error) {
       console.log("Error:", error);
@@ -57,8 +64,8 @@ const SaleDeleteHandler = async()=>{
   if (status) {
     const db = await dbConnection()
       await db.runAsync('DELETE FROM product_sale WHERE id = $value',{$value : saleBill?.id}) 
+    dispatch(deleteSale(saleBill?.id))
     navigation.goBack()
-    fetchData()
   } 
    Toast.show({type:'success',text1:'Existing Sale Deteled !!'})
   } catch (e) {
@@ -93,13 +100,10 @@ useLayoutEffect(()=>{
  })
 },[navigation])
 
-
-useFocusEffect(
-    useCallback(() => {
-      fetchData();
-    }, [])
-  );
-  
+ 
+  const DownlowdInvoice = async()=>{
+     
+  }
    if (!themes) return null;   
   return (
       <View style={{flex:1,justifyContent:"space-between",flexDirection:"column"}}>
@@ -125,7 +129,7 @@ useFocusEffect(
             <TouchableOpacity  style={[styles.printitems,{backgroundColor:themes.mainColor,shadowColor:themes.theme.color,borderColor:themes.theme.color}]}>
             <AntDesign color={'#fff'} size={25} name="printer" />
             </TouchableOpacity> 
-            <TouchableOpacity style={[styles.printitems,{backgroundColor:themes.mainColor,shadowColor:themes.theme.color,borderColor:themes.theme.color}]}>
+            <TouchableOpacity onPress={DownlowdInvoice} style={[styles.printitems,{backgroundColor:themes.mainColor,shadowColor:themes.theme.color,borderColor:themes.theme.color}]}>
             <AntDesign color={'#fff'} size={25} name="download" />
             </TouchableOpacity> 
             <TouchableOpacity onPress={PrintUsingMobile} style={[styles.printitems,{backgroundColor:themes.mainColor,shadowColor:themes.theme.color,borderColor:themes.theme.color}]}>

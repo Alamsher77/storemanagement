@@ -1,14 +1,30 @@
 import Currancy from '../Currancy'
 import DateFormate from '../dateFormate'
 import numberToWords from "number-to-words";
-const htmlContent = ({bill,localUserData})=>{
+import { Asset } from 'expo-asset';
 
+
+let localImageData = ''
+
+const geLocalImage = async ()=>{
+  const imageAsset = Asset.fromModule(
+  require('../../assets/images/logo.png')
+);
+await imageAsset.downloadAsync();
+localImageData = imageAsset.uri
+}
+
+geLocalImage()
+
+
+const htmlContent = ({bill,localUserData})=>{ 
  const totalQuantity = bill?.products?.reduce((prev,nex)=>{return prev + Number(nex?.quantity)},0)
  
 const words = numberToWords.toWords(Number(bill?.totalAmount || 0)) 
 const receiveDuesAmount = bill?.dues && bill?.dues?.dues ? bill?.dues?.duesAmount?.reduce((prev,next)=>{return prev + Number(next?.duesAmount)},0) : null
 const TotalDuesAmount = receiveDuesAmount &&  bill?.totalAmount - receiveDuesAmount
 const TotalDiscount = bill?.totalProductPrice ? (bill?.totalProductPrice - bill?.totalAmount) >= 0 && (bill?.totalProductPrice - bill?.totalAmount) : 0 
+
 return (`
 <!DOCTYPE html>
 <html lang="en">
@@ -118,22 +134,22 @@ return (`
     <p style="border:solid 2px gray; padding:2px 4px;color:gray;font-weight:bolder;border-radius:3px;font-size:14px">ORIGINAL</p>
     </div>
     <header>  
-      <img src="${localUserData ? `data:image/jpeg;base64,${localUserData?.imageLogo}` :"#"}" alt="Logo">
+      <img src="${localUserData ? `data:image/jpeg;base64,${localUserData?.imageLogo}` : localImageData}" alt="Logo">
 
     
      <div>
        <h3 style="color:#ff6600">${localUserData?.beusnessName ? localUserData?.beusnessName :"STORE MANAGEMENT"}</h3>
-       <p>Address :${localUserData?.Adress ? localUserData?.Adress : "No"}</p>
-       <p>Phone : ${localUserData?.phone ? localUserData?.phone :"No"}</p>
-       <p>Email : ${localUserData?.Email ? localUserData?.Email : "No"}</p>
-       <p>Website : ${localUserData?.Web ? localUserData?.Web : "No"}</p>
+       <p>Address :${localUserData?.Adress ? localUserData?.Adress : "Garhwa / Jharkhand / India"}</p>
+       <p>Phone : ${localUserData?.phone ? localUserData?.phone :"1234567890"}</p>
+       <p>Email : ${localUserData?.Email ? localUserData?.Email : "storemanage@gmail.com"}</p>
+       <p>Website : ${localUserData?.Web ? localUserData?.Web : "https://storemanage.com"}</p>
       </div> 
     </header>
 
     <div class="invoice-details"> 
        <div>
         <strong>Invoice No:</strong>  <br>
-        ${bill?.invoice} 
+        ${bill?.id} 
         </div>
        <div>
         <strong>Invoice Date:</strong>  <br>
@@ -216,7 +232,7 @@ return (`
   <div class="terms">
       <h3>Terms and Conditions</h3>
       1. Goods once sold will not be taken back or exchanged.<br>
-      2. All disputes are subject to Garhwa / Jharkhand jurisdiction only.<br>
+      2. All disputes are subject to ${localUserData?.Adress ? localUserData?.Adress : 'Garhwa / Jharkhand'} jurisdiction only.<br>
        Any enqairy Please contact To ${localUserData ? localUserData?.phone : 1234567890} my number.
     </div> 
     <footer>

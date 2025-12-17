@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useEffect} from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './page/Home';
 import About from './page/About';
@@ -10,11 +10,78 @@ import TotalSold from './Screens/Home/TotalSold';
 import ViewSaleBillDetails from './Screens/Home/ViewSaleBillDetails'
 import UserBankingDetails from './Screens/Home/UserBankingDetails'
 import Toast from 'react-native-toast-message'
+import { useDispatch,useSelector } from "react-redux";
+import {getProducts,getSales} from './Storage/Database' 
+import {setProducts,setProductCategry} from './redux/productSlice'
+import {setSale,setMonthlySaleData,setTodayIncome} from './redux/saleSlice'
+import Saleanalysis from './analysis'
+import DateAndTime from './dateAndTime'
 export default function StackNavigation() {
   const Stack = createNativeStackNavigator();
   const theme = useColorScheme()
   const background = theme == 'dark' ? 'black' : '#fff'
   const textColor = theme == 'dark' ? '#ddd' : '#444'
+ 
+  const dispatch = useDispatch();  
+  
+  useEffect(() => {
+  loadProducts();
+  laodSales()
+  }, []);
+
+const loadProducts = async () => {
+  try { 
+  const rows = await getProducts();  
+   dispatch(setProducts(rows))
+  } catch (e) {
+    console.log('product fetch error '+e.message)
+  }
+  
+};
+ 
+ const getsalesdata = useSelector((state)=> state.sale.sale)
+const laodSales = async ()=>{
+  try {
+    const rows = await getSales()
+      const  someSaleDataToParse = rows.map((saleItems)=>({...saleItems,
+      dues:safeParse(saleItems?.dues),
+      products:safeParse(saleItems?.products),
+      updateAt:safeParse(saleItems?.updateAt)
+  }))   
+ 
+    dispatch(setSale(someSaleDataToParse))
+  } catch (e) {
+      console.log('sale fetch error '+e.message)
+  }
+}
+
+const itemsRecords = useSelector((state)=>state.product.products)
+useEffect(() => {
+  if (itemsRecords.length > 0) {
+    const categories = [
+      ...new Set(
+        itemsRecords
+          .map(i => typeof i.category === 'string' ? i.category.toUpperCase() : null)
+          .filter(Boolean)
+      )
+    ];
+    dispatch(setProductCategry(categories));
+  }
+}, [itemsRecords]);
+
+
+useEffect(()=>{
+  if (getsalesdata.length > 0) {
+    const monthlySaleData = Saleanalysis({ SaleRecords: getsalesdata });
+    const todayDate = (DateAndTime()).date
+
+const todayIncome = Saleanalysis({SaleRecords:getsalesdata,specificDate:todayDate})
+    dispatch(setTodayIncome(todayIncome))
+    dispatch(setMonthlySaleData(monthlySaleData));
+  }
+}, [getsalesdata]);
+
+  
   if (!theme) return null;
   return (
     <>
@@ -37,3 +104,12 @@ export default function StackNavigation() {
     </>
   )
 }
+
+
+const safeParse = (val) => {
+  try {
+    return JSON.parse(val);
+  } catch {
+    return [];
+  }
+};

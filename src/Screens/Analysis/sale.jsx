@@ -59,6 +59,8 @@ const Sale = ()=> {
   return result;
 }
 const [monthData, setMonthData] = useState([]);
+const [totalIncomeMonth, setTotalIncomeMonth] = useState(0);
+const [totalSaleMonth, setTotalSaleMonth] = useState(0);
 useEffect(()=>{
   const getMonthData = async()=>{
    const db = await dbConnection();
@@ -70,7 +72,8 @@ const year = String(currentYear);
 const results = await db.getAllAsync(
   `SELECT 
       date AS day,
-      SUM(totalIncome) AS totalIncome
+      SUM(totalIncome) AS totalIncome,
+      SUM(totalAmount) AS totalSale
     FROM product_sale
     WHERE substr(date, 4, 2) = ? 
       AND substr(date, 7, 4) = ?
@@ -79,7 +82,6 @@ const results = await db.getAllAsync(
   [month, year]
 );
 const fullDates = getAllDatesInMonth(currentYear, String(currentMonth +1));
-
 // Convert dbResults to map for fast lookup
 const incomeMap = {};
 results.forEach(item => {
@@ -107,6 +109,10 @@ results.forEach(item => {
           </Text>
         ) : null,
 })); 
+const calcTotalIncomOfMonthe = results?.reduce((prev,next)=> prev + Number(next.totalIncome),0)
+const calcTotalSaleOfMonthe = results?.reduce((prev,next)=> prev + Number(next.totalSale),0)
+setTotalIncomeMonth(Math.floor(calcTotalIncomOfMonthe))
+ setTotalSaleMonth(Math.floor(calcTotalSaleOfMonthe))
  setMonthData(finalData)
   } catch (e) {
     console.log(e)
@@ -115,7 +121,6 @@ results.forEach(item => {
     getMonthData()
 },[currentMonth,selectedBarIndex])
 
-console.log(selectedBarIndex)
   return(
     <View>
        <BoxContainer style={{gap:12}}>
@@ -127,6 +132,10 @@ console.log(selectedBarIndex)
            <Pressable onPress={()=>navigateMonth(1)} style={styles.arrowButton}>
             <MaterialIcons name="chevron-right" color='#fff' size={25} />
            </Pressable>
+          </View>
+          <View style={ { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+           <Text style={{color:Color.gray[400],fontWeight:'700',}}>Total Sale : {totalSaleMonth}</Text>
+           <Text style={{color:Color.gray[400],fontWeight:'700',}}>Total Income : {totalIncomeMonth}</Text>
           </View>
              <View
           style={{

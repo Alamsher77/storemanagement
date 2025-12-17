@@ -29,7 +29,7 @@ export const useColors = () => {
 export const ContextContent = ({children})=>{
    
  
-  const [itemsRecords,setItemsRecords] = useState(null)
+  const [itemsRecords,setItemsRecords] = useState([])
   const [SaleRecords,setSaleRecords] = useState([])
   const [dataloading,setdataloading] = useState(false)
   const [productCategory,setProductCategory] = useState(null)
@@ -43,27 +43,24 @@ export const ContextContent = ({children})=>{
     }
 
   }
-  const fetchData = async ()=>{
+  const fetchData = async (type)=>{
     try {
-      setdataloading(true)
-//  const data =   await readData()
-  //const saleData = await readDataSale()
- const db = await dbConnection()
- const data = await db.getAllAsync("SELECT * FROM products  ORDER BY id DESC;")
- const saleData = await db.getAllAsync("SELECT * FROM product_sale ORDER BY id DESC ;")
-  setdataloading(false)
-   setItemsRecords(data)  
-  // some sale recors is string to pase to array ya object 
-  const  someSaleDataToParse = saleData.map((saleItems)=>{
-    const parseDues = JSON.parse(saleItems.dues)
-    const parseProducts = JSON.parse(saleItems.products)
-    const updateAtJson =  JSON.parse(saleItems.updateAt)
-    return {...saleItems,dues:parseDues,products:parseProducts,updateAt:updateAtJson}
-  }) 
-  setSaleRecords(someSaleDataToParse)  
+//       setdataloading(true) 
+// const db = await dbConnection()    
+// const saleData = await db.getAllAsync("SELECT * FROM product_sale ORDER BY id DESC ;")   
+ 
+//   const  someSaleDataToParse = saleData.map((saleItems)=>{
+//     const parseDues = JSON.parse(saleItems.dues)
+//     const parseProducts = JSON.parse(saleItems.products)
+//     const updateAtJson =  JSON.parse(saleItems.updateAt)
+//     return {...saleItems,dues:parseDues,products:parseProducts,updateAt:updateAtJson}
+//   }) 
+//   setSaleRecords(someSaleDataToParse)  
     } catch (e) {
       setdataloading(false)
       console.log(e.message)
+    }finally{
+      setdataloading(false)
     }
   }
   const themes =  useColors() 
@@ -94,4 +91,4 @@ const todayIncome = Saleanalysis({SaleRecords,specificDate:todayDate})
      {children}
      </ProductContext.Provider>
     )
-}
+}    

@@ -42,9 +42,15 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Toast from 'react-native-toast-message'
 import DateAndTime from '../dateAndTime'
 import Currancy from '../Currancy'
+import { useSelector,useDispatch } from "react-redux"; 
+import {addProductData,removeProduct,editProduct} from '../redux/productSlice'
 export default function Store() { 
   
-  const {themes,fetchData,itemsRecords,dataloading,productCategory} = useContext(ProductContext)
+  const {themes,fetchData,dataloading} = useContext(ProductContext) 
+  const dispatch = useDispatch()
+  // get product and productCategory from redux 
+  const {products:itemsRecords,produtCategry:productCategory} = useSelector((state)=>state.product)
+  // end of redux get data 
   const [openDragableModel,setOpenDragableModel] = useState(false) 
   const [loading,setLoading] = useState(false) 
  
@@ -65,29 +71,29 @@ export default function Store() {
    if (!createProduct.success) {
      Toast.show({type:'error',text1:createProduct.message})
      return false
-   }
+   } 
     Toast.show({type:'success'.success,text1:createProduct.message})
-    // setOpenDragableModel(false)
-    fetchData()
+    dispatch(addProductData(createProduct?.data))
+    setOpenDragableModel(false) 
     } catch (e) {
       console.log(e)
-      alert(e.message)
+     Toast.show({type:'error'.success,text1:e.message})
     }
   } 
   const [productEdit,setProductEdit] = useState(null)
- const deleteHandler = async(id)=>{
-   try {
+   const deleteHandler = async(id)=>{
+     try { 
+    const conform = await Conformation('⚠️','Are You Delete This Items');
     
-  const conform = await Conformation('⚠️','Are You Delete This Items');
-  if(!conform) return 
-   const db = await dbConnection()
-   await db.runAsync('DELETE FROM products WHERE id = $value', { $value: id });
-  fetchData();  
-  Toast.show({type:'success',text1:'Product Deteled !!'})
-   } catch (e) {
-     alert(e.message)
+    if(!conform) return 
+     const db = await dbConnection()
+     await db.runAsync('DELETE FROM products WHERE id = $value', { $value: id }); 
+     dispatch(removeProduct(id))
+    Toast.show({type:'success',text1:'Product Deteled !!'})
+     } catch (e) {
+       Toast.show({type:'error',text1:e.message})
+     }
    }
- }
  const editHandler = async(id)=>{
    try { 
    
@@ -99,29 +105,30 @@ export default function Store() {
       return false
     }
   // await updateItem(productEdit,itemsData)
-   const db = await dbConnection()
- await db.runAsync(
-  `UPDATE products SET
-     name = ?, stock = ?, units = ?, salePrice = ?, purchasePrice = ?,
-     selectSize = ?, size = ?, category = ?
-   WHERE id = ?`,
-  [
-    itemsData.name,
-    itemsData.stock,
-    itemsData.units,
-    itemsData.salePrice,
-    itemsData.purchasePrice,
-    itemsData.selectSize,
-    itemsData.size,
-    itemsData.category,
-    itemsData.id
-  ]
-);
+  // const db = await dbConnection()
+// await db.runAsync(
+//   `UPDATE products SET
+//     name = ?, stock = ?, units = ?, salePrice = ?, purchasePrice = ?,
+//     selectSize = ?, size = ?, category = ?
+//   WHERE id = ?`,
+//   [
+//     itemsData.name,
+//     itemsData.stock,
+//     itemsData.units,
+//     itemsData.salePrice,
+//     itemsData.purchasePrice,
+//     itemsData.selectSize,
+//     itemsData.size,
+//     itemsData.category,
+//     itemsData.id
+//   ]
+// );
      setProductEdit(null)
      setOpenDragableModel(false) 
-  
+     
+  dispatch(editProduct(itemsData))
     Toast.show({type:'success',text1:'Product Updated'})
-     fetchData()
+    
    } catch (e) {
      console.log(e)
      alert(e.message)
@@ -131,25 +138,25 @@ export default function Store() {
  const [activeCategoryButton,setActiveCategoryButton] = useState(null)
  
 
-const [filterProductWithCategoryOrStock,setFilterProductWithCategoryOrStock] = useState([])
+// const [filterProductWithCategoryOrStock,setFilterProductWithCategoryOrStock] = useState([])
 
-useEffect(()=>{
-  const productFilter = async ()=>{
-    const db = await dbConnection();
-    const results = await db.getAllAsync(
-  `SELECT * FROM products
-  WHERE (:activeCategoryButton IS NULL OR UPPER(category) = :activeCategoryButton)
-  ORDER BY stock ASC
-  LIMIT 150;`,
-  [activeCategoryButton ? activeCategoryButton.toUpperCase() : null]
-);
-    setFilterProductWithCategoryOrStock(results)
-  }
-  productFilter()
-},[activeCategoryButton])
-// const filterProductWithCategoryOrStock = itemsRecords?.filter((items)=>{
-// return activeCategoryButton ? activeCategoryButton == items?.category.toUpperCase()  : items
-// }).sort((a,b)=> a.stock - b.stock)
+// useEffect(()=>{
+//   const productFilter = async ()=>{
+//     const db = await dbConnection();
+//     const results = await db.getAllAsync(
+//   `SELECT * FROM products
+//   WHERE (:activeCategoryButton IS NULL OR UPPER(category) = :activeCategoryButton)
+//   ORDER BY stock ASC
+//   LIMIT 150;`,
+//   [activeCategoryButton ? activeCategoryButton.toUpperCase() : null]
+// );
+//     setFilterProductWithCategoryOrStock(results)
+//   }
+//   productFilter()
+// },[activeCategoryButton])
+const filterProductWithCategoryOrStock = itemsRecords?.filter((items)=>{
+return activeCategoryButton ? activeCategoryButton == items?.category?.toUpperCase()  : items
+}).sort((a,b)=> a.stock - b.stock)
   const [searchProduct,setSearchProduct] = useState(null)
  const [searchText,setSearchText] = useState('')
   const searchHandler = (text)=>{
@@ -160,8 +167,8 @@ useEffect(()=>{
     }) 
     setSearchProduct(filterseachitems)
    
-  }
-  
+  } 
+
 if (!themes) return null;
   return (
     <View style={{backgroundColor:themes.theme.backgroundTheme,position:'relative',flex:1,paddingBottom:90}}>

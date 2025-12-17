@@ -1,28 +1,49 @@
 
 
 import * as SQLite from 'expo-sqlite';
-let dbInstance = null
-export async function dbConnection(){
-  
+let dbInstance = null;
+let isOpening = false;
 
-  if (dbInstance) return dbInstance
-  
-  dbInstance =  await SQLite.openDatabaseAsync('productStore.db');  
-  await dbInstance.execAsync(`
-  CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY NOT NULL,
-    name TEXT,
-    stock TEXT,
-    units TEXT,
-    salePrice TEXT,
-    purchasePrice TEXT,
-    selectSize TEXT,
-    size TEXT,
-    category TEXT
+export async function dbConnection() {
+  if (dbInstance) return dbInstance;
+
+  if (isOpening) {
+    while (!dbInstance) {
+      await new Promise(res => setTimeout(res, 50));
+    }
+    return dbInstance;
+  }
+
+  isOpening = true;
+
+  dbInstance = await SQLite.openDatabaseAsync('productStore.db');
+
+  // ✅ WAL permanently OFF
+  await dbInstance.execAsync("PRAGMA journal_mode=DELETE;");
+  await dbInstance.execAsync("VACUUM;");
+
+  // ✅ CREATE TABLE only if NOT imported DB
+  const table = await dbInstance.getAllAsync(
+    "SELECT name FROM sqlite_master WHERE type='table' AND name='products';"
   );
-`); 
-  await dbInstance.execAsync(`
-      CREATE TABLE IF NOT EXISTS product_sale (
+
+  if (table.length === 0) {
+    await dbInstance.execAsync(`
+      CREATE TABLE products (
+        id INTEGER PRIMARY KEY NOT NULL,
+        name TEXT,
+        stock TEXT,
+        units TEXT,
+        salePrice TEXT,
+        purchasePrice TEXT,
+        selectSize TEXT,
+        size TEXT,
+        category TEXT
+      );
+    `);
+
+    await dbInstance.execAsync(`
+      CREATE TABLE product_sale (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         customerName TEXT,
         products TEXT,
@@ -35,10 +56,11 @@ export async function dbConnection(){
         updateAt TEXT
       );
     `);
-  
-  return dbInstance
+  }
+
+  isOpening = false;
+  return dbInstance;
 }
- 
 
 
 export async function addSale(sale) {
@@ -70,7 +92,14 @@ const saleCreated =  await db.runAsync(query, [
     return {success:false,message:'Somthing whent wrong !!'}
   }
   
- return {success:true,message:'Sale Created successfully'} 
+ return {
+   success:true,
+   message:'Sale Created successfully',
+   data:{
+     ...sale,
+     id:saleCreated.lastInsertRowId
+   } 
+ } 
 }
 export async function addProduct(product) {
  const db = await dbConnection()
@@ -98,14 +127,31 @@ if (created) {
     product.size,
     product.category
   ]);
-  return{success:true,message:'Created'}
-   
-
+  return{
+    success:true,
+    message:'Created',
+    data:{
+      ...product,
+      id:dataRecive.lastInsertRowId
+    }} 
    
 
  
 // console.log(products)
 //   console.log("✅ Sale added successfully!");
+}
+
+// products data crud
+export async function getProducts() {
+  const db = await dbConnection();
+  return await db.getAllAsync("SELECT * FROM products ORDER BY id DESC");
+}
+ 
+
+// sale crud 
+export async function getSales() {
+  const db = await dbConnection();
+  return await db.getAllAsync("SELECT * FROM product_sale ORDER BY id DESC");
 }
 
 

@@ -22,6 +22,8 @@ import {
   ContextContent
 } from './src/Context/Contextcontent'
 import * as Updates from "expo-updates"; 
+import { store } from './src/redux/store'
+import { Provider, } from 'react-redux' 
 export default function App() {
  useEffect(() => {
    async function checkUpdate() {
@@ -38,13 +40,14 @@ export default function App() {
     }
 
     checkUpdate();
-  }, []);
-
+  }, []);  
   return (
-    <ContextContent>
-     <NavigationContainer>
-       <StackNavigation />
-     </NavigationContainer>
-    </ContextContent>
+     <Provider store={store}>
+      <ContextContent>
+       <NavigationContainer>
+         <StackNavigation />
+       </NavigationContainer>
+      </ContextContent>
+     </Provider>
   )
 }

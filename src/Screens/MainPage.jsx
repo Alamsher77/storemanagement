@@ -1,4 +1,4 @@
-import { View, Text, Image, Modal, TouchableOpacity, Alert,useAnimatedValue,Dimensions,Animated,StyleSheet,PanResponder} from 'react-native'
+import { View, Text, Image, Modal, TouchableOpacity, Alert,useAnimatedValue,Dimensions,Animated,StyleSheet,PanResponder,ActivityIndicator} from 'react-native'
 import React, { useState,useContext,useRef,useEffect } from 'react'
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import Colors from '../Colors';
@@ -9,27 +9,67 @@ import ProductModelData from '../component/ProductModelData';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
+import * as DocumentPicker from "expo-document-picker";
 import { useNavigation } from '@react-navigation/native';
 import {ProductContext} from '../Context/Contextcontent'
  const { height: ScreenHeight } = Dimensions.get('window')
  import MonthlyIncome from './Home/MonthlyIncome'
  import Currancy from '../Currancy'
  import MainScreenCharts from './Home/mainScreenCharts'
+ import {useSelector } from "react-redux";
 export default function MainPage() {
-  
-  const {productCategory,itemsRecords,themes,SaleRecords,localUserData,monthlySaleData,todayIncome} = useContext(ProductContext)
+ const {products:itemsRecords,produtCategry:productCategory} = useSelector((state)=>state.product)  
+ const {sale:SaleRecords,monthlySaleData,todayIncome} = useSelector((state)=>state.sale)  
+  const {themes,localUserData} = useContext(ProductContext) 
   const router = useNavigation(); 
   const [openDragableModel, setOpenDragableModel] = useState(false) 
    const TotalSaleIncome = SaleRecords?.reduce((prev,next)=> prev + Number(next?.totalIncome),0)
    
    const [showPoupup, setShowpopup] = useState(true)
- 
+ const [loading,setLoading] = useState(false)
+ const [selectFileData,setSelectFileData] = useState(null)
+ const ConverToSqlitDbFile = async(conOption)=>{
+  try {
+    
+    if (conOption == 'upload') {
+      const result = await DocumentPicker.getDocumentAsync({type:'application/json'}); 
+       if (result.canceled) {
+         setSelectFileData(null)
+         return false
+       }
+      setSelectFileData(result) 
+      return false
+    }
+    alert('convert')
+      
+  } catch (e) {
+    console.log(e.message)
+  }
+ }
  if (!themes) return null;
   return (
       <>
       <DragableModel minHeight={300} openDragableModel={openDragableModel} setOpenDragableModel={setOpenDragableModel} > 
-           
+        <View style={{flexDirection:'row',gap:8,alignItems:'center',marginTop:10}}>
+         <Text style={{color:themes.theme.color}}>Please Select json file</Text>
+         <TouchableOpacity onPress={()=>ConverToSqlitDbFile('upload')} style={{outlineWidth:1,outlineColor:Colors.mainColor,paddingHorizontal:8,paddingVertical:4,}}>
+         {
+           loading ?
+             <ActivityIndicator color={Colors.mainColor} size={25} />
+             :
+             <Fontisto color={themes.theme.color} name='upload' size={25} />
+         } 
+         </TouchableOpacity>
+        </View>
+       {
+         selectFileData &&
+         <View style={{marginTop:12,gap:8,justifyContent:'space-between',paddingHorizontal:4,flexDirection:'row'}}>
+           <Text style={{color:themes.theme.color}}>Selected File Name : {selectFileData.assets[0].name}</Text>
+           <TouchableOpacity onPress={()=>ConverToSqlitDbFile('convert')} style={{outlineWidth:1,outlineColor:Colors.mainColor,paddingHorizontal:8,paddingVertical:4,}}>
+            <Text style={{color:themes.theme.color}}>Convert To DbFile</Text>
+           </TouchableOpacity>
+         </View>
+       }
       </DragableModel>
       {/* Heder Styles */}
       <View style={{ elevation: 5, flexDirection: "row", justifyContent: 'space-between', width: '100%', backgroundColor:themes.theme.backgroundTheme, alignItems: 'center', paddingHorizontal: 15,paddingVertical:4}}>
@@ -64,7 +104,7 @@ export default function MainPage() {
     }
       <ScrollContainer style={{backgroundColor:themes.theme.backgroundTheme}}>
       
-        <MainScreenCharts monthlySaleData={monthlySaleData} TotalSaleIncome={TotalSaleIncome} />
+        <MainScreenCharts   TotalSaleIncome={TotalSaleIncome} />
         
         <View style={{ marginTop: 30, flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'start' }}>
           <ProductModelData onPress={()=> router.navigate('TotalProduct')} percentChange={5} quantity={itemsRecords?.length} icons={<Ionicons name="cube" size={25} color={Colors.mainColor} />} header="Total Products" />

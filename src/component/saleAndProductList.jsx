@@ -176,7 +176,7 @@ const CustomerBillRecords = ({items,index})=>{
 const totaldues = totalduesSale > 0 ? Number(items.totalAmount) - totalduesSale : 0
   return(
     <BoxContainer>
-    <TouchableOpacity onPress={()=> navigation.navigate('Bill',{saleBill:{...items,invoice:Number(SaleRecords?.length - index )}})}>
+    <TouchableOpacity onPress={()=> navigation.navigate('Bill',{saleBill:{...items}})}>
     <View style={{flexDirection:"row",justifyContent:"space-between"}}>
       <Text style={{color:themes.theme.color,fontWeight:'500',fontSize:12}}>{items?.customerName}</Text>
       {

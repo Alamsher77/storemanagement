@@ -49,41 +49,30 @@ const StoreHeader = ({title})=>{
   
   const FileImportHandler = async ()=>{ 
     try {
-  //   const getalldata = await readDataSale()
-  //   const db = await dbConnection();
-  // const modify = getalldata.map((item)=>{
-  //   return{...item,totalProductPrice:item?.totalProductPrice || 0,dues: item?.dues || {dues: false, duesAmount: []}}
-  // })
-   
-  //   alert('please wait...')
- 
+  
+      // const destUri = folderUri +"SQLite/"; // same   
+      // const folders = await FileSystem.readDirectoryAsync(destUri)
+      // console.log(folders)
+    const result = await DocumentPicker.getDocumentAsync({type:'application/octet-stream'}); 
     
-  //   for(const productData of modify){ 
-  //     await addSale(productData)
-  //   }
-  //       fetchData()
-  //       alert('sale set Successfull')
-    const result = await DocumentPicker.getDocumentAsync({type:'application/octet-stream'});
-    // const result = await DocumentPicker.getDocumentAsync({type:'application/json'}); 
       if (!result.canceled) {
     const file = result.assets[0]; // pehla selected file
     const sourceUri = file.uri;
-     const destUri = folderUri +"SQLite/"+file.name; // same  
-   // const destUri = await FileSystem.readDirectoryAsync(folderUri) // same  
-    // if (!files.includes("productStore.db")){
-    //   Toast.show({type:'error',text1:'Import Right files (productStore.db)'})
-    //   return false
-    // }
-    await FileSystem.makeDirectoryAsync(folderUri+"SQLite",{intermediates:true})
+    const destUri = folderUri +"SQLite/"+file.name; // same    
     
+  await FileSystem.makeDirectoryAsync(folderUri+"SQLite",{intermediates:true}) 
+ 
+    const info = await FileSystem.getInfoAsync(destUri);
+    if (info.exists) {
+      await FileSystem.deleteAsync(destUri, { idempotent: true });
+    }
+
     await FileSystem.copyAsync({
       from:sourceUri,
       to:destUri
     })
-    // const content = await FileSystem.readAsStringAsync(sourceUri); 
-    // await FileSystem.writeAsStringAsync(destUri, content);  
-    fetchData()
-     alert(file.name+' File Imported Successfull')
+   
+    alert(file.name+' File Imported Successfull please restart the app')
 
     } else {
     console.log("User canceled import");
