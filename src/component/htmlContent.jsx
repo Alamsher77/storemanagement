@@ -21,10 +21,13 @@ const htmlContent = ({bill,localUserData})=>{
  const totalQuantity = bill?.products?.reduce((prev,nex)=>{return prev + Number(nex?.quantity)},0)
  
 const words = numberToWords.toWords(Number(bill?.totalAmount || 0)) 
-const receiveDuesAmount = bill?.dues && bill?.dues?.dues ? bill?.dues?.duesAmount?.reduce((prev,next)=>{return prev + Number(next?.duesAmount)},0) : null
-const TotalDuesAmount = receiveDuesAmount &&  bill?.totalAmount - receiveDuesAmount
+const receiveDuesAmount = bill?.dues && bill?.dues?.dues ? bill?.dues?.duesAmount?.reduce((prev,next)=>{return prev + Number(next?.duesAmount)},0) : 0
+
+const TotalDuesAmount = bill?.totalAmount - receiveDuesAmount
+
 const TotalDiscount = bill?.totalProductPrice ? (bill?.totalProductPrice - bill?.totalAmount) >= 0 && (bill?.totalProductPrice - bill?.totalAmount) : 0 
 
+ 
 return (`
 <!DOCTYPE html>
 <html lang="en">

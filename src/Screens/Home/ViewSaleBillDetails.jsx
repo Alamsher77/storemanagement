@@ -24,9 +24,10 @@ const ViewSaleBillDetails = ()=>{
     const {themes,localUserData,fetchData} = useContext(ProductContext)
     const {sale:SaleRecords} = useSelector((state)=> state.sale)
     const route = useRoute();
-    const { saleBill } = route.params; 
-    const findCurrentBill = SaleRecords.find(saleitem => saleitem.id == saleBill.id)
-    const bill = {...saleBill,...findCurrentBill}
+    const { billId } = route.params;  
+    const bill = SaleRecords.find(saleitem => saleitem.id == billId)
+     
+    
   // const print mobile thermal
   const PrintUsingMobile = async()=>{
       // 1. Init printer module
@@ -61,13 +62,13 @@ const navigation = useNavigation();
 const SaleDeleteHandler = async()=>{
   const status = await Conformation('⚠️ DELETED ⚠️','Are you delete this invoice !!')
   try {
-  if (status) {
+  if (status && bill) {
     const db = await dbConnection()
-      await db.runAsync('DELETE FROM product_sale WHERE id = $value',{$value : saleBill?.id}) 
-    dispatch(deleteSale(saleBill?.id))
-    navigation.goBack()
-  } 
+      await db.runAsync('DELETE FROM product_sale WHERE id = $value',{$value :billId}) 
+    dispatch(deleteSale(billId))
    Toast.show({type:'success',text1:'Existing Sale Deteled !!'})
+  } 
+    navigation.goBack()
   } catch (e) {
    Toast.show({type:'error',text1:e.message})
   }

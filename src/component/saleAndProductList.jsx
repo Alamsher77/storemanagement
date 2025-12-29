@@ -172,15 +172,17 @@ const CustomerBillRecords = ({items,index})=>{
   const TotalSoldPrice = items?.products?.reduce((prev,next)=> {return prev + Number(next?.salePrice) * Number(next?.quantity)},0) 
   const TotalQuantity = items?.products?.reduce((prev,next)=>{return prev + Number(next?.quantity)},0)
   
-   const totalduesSale = items?.dues && items?.dues.dues ? items?.dues.duesAmount.reduce((prev,next)=> prev + Number(next?.duesAmount),0): 0
-const totaldues = totalduesSale > 0 ? Number(items.totalAmount) - totalduesSale : 0
+const totalduesSale =  items?.dues && items?.dues?.dues ? items?.dues?.duesAmount?.reduce((prev,next)=>{return prev + Number(next?.duesAmount)},0) : 0
+   
+const totaldues = Number(items.totalAmount) - totalduesSale 
+
   return(
     <BoxContainer>
-    <TouchableOpacity onPress={()=> navigation.navigate('Bill',{saleBill:{...items}})}>
+    <TouchableOpacity onPress={()=> navigation.navigate('Bill',{billId:items?.id})}>
     <View style={{flexDirection:"row",justifyContent:"space-between"}}>
       <Text style={{color:themes.theme.color,fontWeight:'500',fontSize:12}}>{items?.customerName}</Text>
       {
-      totaldues > 0 && 
+      items?.dues && items?.dues?.dues && totaldues > 0 && 
       <View style={{backgroundColor:Colors.mainColor,width:8,height:8,borderRadius:50,}} />
       }
     </View>

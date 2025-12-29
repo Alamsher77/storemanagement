@@ -1,5 +1,5 @@
 import { View, Text,useColorScheme,StyleSheet,Pressable,TextInput,Dimensions,Animated,FlatList,Switch,Button,TouchableOpacity,StatusBar} from 'react-native'
-import React,{useState,useRef,useContext,useEffect} from 'react'
+import React,{useState,useRef,useContext,useEffect,useCallback} from 'react'
 import ScrollContainer from '../../component/ScrollContainer'
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
@@ -19,6 +19,7 @@ import DateFormate from '../../dateFormate'
  import {useSelector,useDispatch } from "react-redux";
  import {createSaleData,editSale} from '../../redux/saleSlice'
  import AsyncStorage from '@react-native-async-storage/async-storage';
+ import { useFocusEffect } from '@react-navigation/native';
 const {height:ScreenHeight} = Dimensions.get('window')
 export default function TotalSold({navigation}) {
   const dispatch = useDispatch()
@@ -93,9 +94,9 @@ const [filterSwitch,setFilterSwitch] = useState(false)
       const matchquery = itemsDate?.date.toLowerCase().includes(findThequery.toLowerCase()) || itemsDate?.customerName.toLowerCase().includes(findThequery.toLowerCase())
       
       if (filterSwitch) {
-        const receiveDuesAmount = itemsDate?.dues && itemsDate?.dues?.dues ? itemsDate?.dues?.duesAmount?.reduce((prev,next)=>{return prev + Number(next?.duesAmount)},0) : null
-        const TotalDuesAmount = receiveDuesAmount &&  itemsDate?.totalAmount - receiveDuesAmount
-        console.log(TotalDuesAmount)
+        const receiveDuesAmount = itemsDate?.dues && itemsDate?.dues?.dues ? itemsDate?.dues?.duesAmount?.reduce((prev,next)=>{return prev + Number(next?.duesAmount)},0) : 0
+        const TotalDuesAmount = itemsDate?.totalAmount - receiveDuesAmount
+    
         return matchquery && (itemsDate?.dues?.dues && TotalDuesAmount > 0)
       }
       return matchquery
@@ -244,12 +245,15 @@ const [duesAmount,setDuesAmount] = useState(null)
   const getDateAndTime = DateAndTime() 
   const SaleHandler = async()=>{
     try {
+       if (customerName.trim() == '') {
+        return Toast.show({type:'error',text1:'Please enter customerName !!'})
+      }
       if (!reciveAmount && reciveAmount.trim() == '') {
         return Toast.show({type:'error',text1:'Please enter the receive amount !!'})
       }
-     if (isEnabled && dues.duesAmount.length == 0) {
-        return Toast.show({type:'error',text1:'Please Enter The Dues amount !!'})
-     }
+    // if (isEnabled && dues.duesAmount.length == 0) {
+    //     return Toast.show({type:'error',text1:'Please Enter The Dues amount !!'})
+    // }
      const status = await Conformation('🧾','Are you sure genrate this bill !!')
       if (!status) return 
       const saleDetails = {customerName:customerName && customerName.trim(),products:SaleProductItems,...getDateAndTime,totalAmount:grandTotalProductPrice,totalIncome:grandTotalProductIncome,totalProductPrice:TotalProductPrice,dues} 
@@ -289,7 +293,7 @@ for (const singleOfSale of updatedata) {
   setSaleProductItems([])
   setCustomerName('')
     await AsyncStorage.removeItem('saleWithoutFinish')
-  navigations.navigate('Bill',{saleBill:{...saleDetails,invoice:Number(SaleRecords?.length +1 )}})
+  navigations.navigate('Bill',{billId:createdSale?.data?.id})
   dispatch(createSaleData(createdSale.data))
   Toast.show({type:'success',text1:createdSale.message})
     } catch (e) { 
@@ -300,6 +304,12 @@ for (const singleOfSale of updatedata) {
   const EditSaleHandler = async()=>{
     try {
       /* code */ 
+       if (customerName.trim() == '') {
+        return Toast.show({type:'error',text1:'Please enter customerName !!'})
+      }
+       if (!reciveAmount && reciveAmount.trim() == '') {
+        return Toast.show({type:'error',text1:'Please enter the receive amount !!'})
+      }
       const status = await Conformation('🧾','Are you sure Edit this bill !!')
       if (!status) return  
       const updateEsistingRecords = {...prodId,products:SaleProductItems,customerName,totalIncome:grandTotalProductIncome,updateAt:getDateAndTime,totalAmount:grandTotalProductPrice,dues,totalProductPrice:TotalProductPrice,}
@@ -354,12 +364,13 @@ for (const singleOfSale of updatedata) {
   } 
   
   const TotalSaleAmount = filterbyquery ? filterbyquery.reduce((prev,next) => prev + Number(next.totalAmount),0) : SaleRecords.reduce((prev,next) => prev + Number(next.totalAmount),0)
+  
   let totalDuesAmoutOfSale = 0
   if (filterbyquery) {
     for(const singleRecordOfSale of filterbyquery){
    const totaldues = singleRecordOfSale?.dues && singleRecordOfSale?.dues.dues ? singleRecordOfSale?.dues.duesAmount.reduce((prev,next)=> prev + Number(next?.duesAmount),0): 0
 // totalDuesAmoutOfSale = totalDuesAmoutOfSale + totaldues
-totalDuesAmoutOfSale += totaldues > 0 ? Number(singleRecordOfSale.totalAmount) - totaldues : 0
+totalDuesAmoutOfSale += Number(singleRecordOfSale.totalAmount) - totaldues 
  }
   }else{
     for(const singleRecordOfSale of SaleRecords){
@@ -371,7 +382,11 @@ totalDuesAmoutOfSale += totaldues > 0 ? Number(singleRecordOfSale.totalAmount) -
   // const receiveDuesAmount = bill?.dues && bill?.dues?.dues ? bill?.dues?.duesAmount?.reduce((prev,next)=>{return prev + Number(next?.duesAmount)},0) : null
   // this handler use to update sale records to reciver amount changest handeler
   const [filterSaleLimitRecords,setFilterSaleLimitRecords] = useState([])
-  useEffect(()=>{
+  
+  
+useFocusEffect(
+    useCallback(() => {
+      // 👇 Back aate hi ye chalega
   const productFilter = async ()=>{
     const db = await dbConnection();
     const results = await db.getAllAsync("SELECT * FROM product_sale ORDER BY id DESC LIMIT 100 ;")
@@ -385,37 +400,16 @@ totalDuesAmoutOfSale += totaldues > 0 ? Number(singleRecordOfSale.totalAmount) -
     setFilterSaleLimitRecords(someSaleDataToParse) 
   }
   productFilter()
-},[filterbyquery])
+    }, [filterbyquery])
+  );
+  
   useEffect(()=>{
     if (prodId) { 
     reciverAmountHandeler(String(prodId?.totalAmount)) 
     }
   },[])
-   
   
-  // store sale history if not created finish 
-  
-  useEffect(()=>{
-    
-    const storeCreateSaleWithoutFinish = async ()=>{
-      try {
-        if (!prodId && SaleProductItems.length > 0 ) { 
-       await AsyncStorage.setItem('saleWithoutFinish', JSON.stringify([...SaleProductItems]));  
-      // await AsyncStorage.removeItem('saleWithoutFinish')
-        }
-        const getUserData = JSON.parse( await AsyncStorage.getItem('saleWithoutFinish'));
-        
-         if (!prodId && getUserData  && !isUp) {
-          setSaleProductItems([...getUserData]) 
-          heightDecreeseAndIncreesAndHide('hide')
-         }
-      } catch (e) {
-        Toast.show({type:'error',text1:e.message})
-        console.log(e.message)
-      }
-    }
-    storeCreateSaleWithoutFinish()
-  },[customerName])
+ 
 if (!themes) return null;
   return (
     <> 

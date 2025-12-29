@@ -8,13 +8,24 @@ import {
   updateItem,
   readDataSale
 } from '../Storage/jsonStorage'
-import {dbConnection,addSale,addProduct} from '../Storage/Database'
+import {dbConnection,addSale,addProduct,getProducts,getSales} from '../Storage/Database'
 import {useColorScheme} from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Saleanalysis from '../analysis'
 import DateAndTime from '../dateAndTime'
+import {setProducts,setProductCategry} from '../redux/productSlice'
+import {setSale,setMonthlySaleData,setTodayIncome} from '../redux/saleSlice'
+import { useDispatch,useSelector } from "react-redux";
 export const ProductContext = createContext();
  
+ 
+const safeParse = (val) => {
+  try {
+    return JSON.parse(val);
+  } catch {
+    return [];
+  }
+};
 export const useColors = () => {
   const colorScheme = useColorScheme(); 
   return {
@@ -27,7 +38,7 @@ export const useColors = () => {
   };
 };
 export const ContextContent = ({children})=>{
-   
+   const dispatch = useDispatch(); 
  
   const [itemsRecords,setItemsRecords] = useState([])
   const [SaleRecords,setSaleRecords] = useState([])
@@ -45,6 +56,8 @@ export const ContextContent = ({children})=>{
   }
   const fetchData = async (type)=>{
     try {
+   
+      
 //       setdataloading(true) 
 // const db = await dbConnection()    
 // const saleData = await db.getAllAsync("SELECT * FROM product_sale ORDER BY id DESC ;")   

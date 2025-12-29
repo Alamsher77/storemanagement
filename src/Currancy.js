@@ -1,6 +1,11 @@
+const Currency = (ruppes) => {
+  if (ruppes === null || ruppes === undefined || ruppes === '') return '₹ 0.00'
 
-const Currancy = (ruppes)=>{
-  return `₹ ${Math.floor(ruppes)}.00`
-} 
+  const amount = Number(ruppes)
 
-export default Currancy
+  if (isNaN(amount)) return '₹ 0.00'
+
+  return `₹ ${amount.toFixed(2)}`
+}
+
+export default Currency

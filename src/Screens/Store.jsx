@@ -104,25 +104,25 @@ export default function Store() {
       setOpenDragableModel(true)
       return false
     }
-  // await updateItem(productEdit,itemsData)
-  // const db = await dbConnection()
-// await db.runAsync(
-//   `UPDATE products SET
-//     name = ?, stock = ?, units = ?, salePrice = ?, purchasePrice = ?,
-//     selectSize = ?, size = ?, category = ?
-//   WHERE id = ?`,
-//   [
-//     itemsData.name,
-//     itemsData.stock,
-//     itemsData.units,
-//     itemsData.salePrice,
-//     itemsData.purchasePrice,
-//     itemsData.selectSize,
-//     itemsData.size,
-//     itemsData.category,
-//     itemsData.id
-//   ]
-// );
+    
+  const db = await dbConnection()
+await db.runAsync(
+  `UPDATE products SET
+    name = ?, stock = ?, units = ?, salePrice = ?, purchasePrice = ?,
+    selectSize = ?, size = ?, category = ?
+  WHERE id = ?`,
+  [
+    itemsData.name,
+    itemsData.stock,
+    itemsData.units,
+    itemsData.salePrice,
+    itemsData.purchasePrice,
+    itemsData.selectSize,
+    itemsData.size,
+    itemsData.category,
+    itemsData.id
+  ]
+);
      setProductEdit(null)
      setOpenDragableModel(false) 
      
