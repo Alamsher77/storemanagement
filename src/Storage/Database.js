@@ -26,8 +26,17 @@ export async function dbConnection() {
   const table = await dbInstance.getAllAsync(
     "SELECT name FROM sqlite_master WHERE type='table' AND name='products';"
   );
-
-  if (table.length === 0) {
+  const table1 = await dbInstance.getAllAsync(
+    "SELECT name FROM sqlite_master WHERE type='table' AND name='product_sale';"
+  );
+  const table2 = await dbInstance.getAllAsync(
+    "SELECT name FROM sqlite_master WHERE type='table' AND name='users';"
+  );
+  const table3 = await dbInstance.getAllAsync(
+    "SELECT name FROM sqlite_master WHERE type='table' AND name='users_transaction';"
+  );
+   
+  if(table.length === 0){
     await dbInstance.execAsync(`
       CREATE TABLE products (
         id INTEGER PRIMARY KEY NOT NULL,
@@ -40,8 +49,9 @@ export async function dbConnection() {
         size TEXT,
         category TEXT
       );
-    `);
-
+    `); 
+  }
+  if(table1.length === 0){
     await dbInstance.execAsync(`
       CREATE TABLE product_sale (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,9 +65,35 @@ export async function dbConnection() {
         totalProductPrice TEXT,
         updateAt TEXT
       );
+    `); 
+  }
+  if(table2.length === 0){
+    await dbInstance.execAsync(`
+      CREATE TABLE users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        phone TEXT,
+        grand_total_due INTEGER,
+        latest_transaction_payment_type TEXT
+      );
+    `); 
+  }
+  if(table3.length === 0){
+    await dbInstance.execAsync(`
+      CREATE TABLE users_transaction ( 
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sale_id TEXT,
+        user_id TEXT,
+        transaction_type TEXT,
+        total_due TEXT, 
+        description TEXT,
+        date TEXT,
+        time TEXT,
+        updateAt TEXT
+      );
     `);
   }
-
+       
   isOpening = false;
   return dbInstance;
 }

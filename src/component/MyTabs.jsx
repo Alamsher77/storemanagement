@@ -7,12 +7,17 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Colors from '../Colors';
 import {ProductContext} from '../Context/Contextcontent'
 import React,{useContext} from 'react'
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated,{ZoomOut,FadeInUp,FadeOutDown,FadeInLeft,FadeInRight} from 'react-native-reanimated';
+  const MaterialIconsAnimated = Animated.createAnimatedComponent(MaterialIcons)
 export default function MyTabBar({ state, descriptors, navigation }) {
   const {themes} = useContext(ProductContext)
   const { colors } = useTheme();
+  const LinearGradientAnimated = Animated.createAnimatedComponent(LinearGradient)
+ 
   if (!state || !navigation) return null;
   return (
-    <View style={[styles.container,{backgroundColor:themes.theme.backgroundTheme}]}>
+    <View style={[styles.container,{backgroundColor:themes.theme.backgroundTheme}]}> 
       {state.routes.map((route, index) => {
 
         const { options } = descriptors[route.key];
@@ -25,14 +30,23 @@ export default function MyTabBar({ state, descriptors, navigation }) {
 
         const isFocused = state.index === index;
         let myIcons;
-        if (route.name == 'Main') {
-          myIcons = <MaterialIcons name="home-filled" size={30} color={isFocused ? Colors.mainColor : '#999'} />
-        } else if (route.name == 'Analysis') {
-          myIcons = <MaterialIcons name="analytics" size={30} color={isFocused ? Colors.mainColor : '#999'} />
-        } else if (route.name == 'Store') {
-          myIcons = <MaterialIcons name="storefront" size={30} color={isFocused ? Colors.mainColor : '#999'} />
+        switch (route.name) {
+          case 'Main':
+           myIcons =  <TabsIcon iconName='home-filled' isFocused={isFocused} />
+            break;
+          case 'Analysis':
+          myIcons = <TabsIcon iconName="analytics" isFocused={isFocused} />
+          break;
+          case 'Store':
+          myIcons = <TabsIcon iconName="storefront" isFocused={isFocused} />
+          break;
+          case 'Ledger':
+          myIcons = <TabsIcon iconName="menu-book" isFocused={isFocused} />
+          break;
+          default:
+            // code
         }
-
+  
         const onPress = () => {
           const event = navigation.emit({
             type: 'tabPress',
@@ -61,38 +75,66 @@ export default function MyTabBar({ state, descriptors, navigation }) {
             accessibilityLabel={options.tabBarAccessibilityLabel}
             testID={options.tabBarButtonTestID}
             onPress={onPress}
-            onLongPress={onLongPress}
-            style={styles.tabs}
+            onLongPress={onLongPress} 
           >
-            {isFocused && <View style={styles.barIndicator} />}
+          <LinearGradient
+           colors={isFocused ? ['#e240ed','#eb613a','#e240ed' ] : ['transparent','transparent']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }} 
+           style={[styles.tabs,{
+           borderRadius:3,  
+          }]}>
+            {
+            // isFocused && <LinearGradientAnimated
+            // entering={FadeInUp} exiting={FadeOutDown}
+            // colors={[Colors.mainColor,'transparent']}
+            // start={{ x: 1, y: 0 }}
+            // end={{ x: 1, y: 1 }} 
+            // style={styles.barIndicator} />   
+            }
             {myIcons}
-            <Text style={{ color: isFocused ? themes.theme.color : '#999', fontWeight: 'bold' }}>
+            {
+              isFocused &&
+              <Animated.Text 
+            entering={FadeInRight} 
+            style={{ color:"#fff", fontWeight: 'bold' }}>
               {label}
-            </Text>
+            </Animated.Text>
+            }
+            </LinearGradient>
           </PlatformPressable>
         );
-      })}
+      })} 
     </View>
   );
 }
 
+const TabsIcon = ({isFocused,iconName,iconColor})=>{
+  return  <MaterialIconsAnimated name={iconName} size={30} color={isFocused ? '#fff' : '#999'} />
+}
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    paddingBottom: 20,
-    paddingTop: 5,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  container: { 
+    width: '100%', 
+    paddingBottom: 20, 
+    justifyContent:'space-between', 
+    alignItems:'center',
+    flexDirection:'row',
+    gap:6,
+    paddingHorizontal:12,
+    paddingTop:6,
   },
-  tabs: {
-    flex: 1,
-    alignItems: 'center',
-    position: 'relative'
+  tabs: {  
+    flexDirection:'row',
+    paddingHorizontal:12,
+    paddingVertical:4, 
+    alignItems:'center', 
+    justifyContent:'center',
+    gap:4
   },
   barIndicator: {
     width: 80,
-    padding: 2,
-    backgroundColor: Colors.mainColor,
+    height:'50%',
+    padding: 2, 
     position: 'absolute',
     top: -10,
     shadowColor: Colors.mainColor,

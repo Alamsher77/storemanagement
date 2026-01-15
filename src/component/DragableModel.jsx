@@ -5,7 +5,7 @@ import ScrollContainer from './ScrollContainer'
 import {ProductContext} from '../Context/Contextcontent'
 const { height: ScreenHeight } = Dimensions.get('window')
 export default function DragableModel({
-  openDragableModel, setOpenDragableModel, children, minHeight }) {
+  openDragableModel, setOpenDragableModel, children, minHeight,style }) {
      const {themes} = useContext(ProductContext)
     const animatedHeight = useRef(new Animated.Value(minHeight)).current;
     const startHeight = useRef(minHeight)
@@ -54,6 +54,7 @@ export default function DragableModel({
                     </Animated.View>
                     <ScrollView
                     showsVerticalScrollIndicator={false} 
+                    contentContainerStyle={style}
                     >
                     {
                         children

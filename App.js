@@ -24,6 +24,9 @@ import {
 import * as Updates from "expo-updates"; 
 import { store } from './src/redux/store'
 import { Provider, } from 'react-redux' 
+import {
+  GestureHandlerRootView,
+} from 'react-native-gesture-handler';
 export default function App() {
  useEffect(() => {
    async function checkUpdate() {
@@ -44,9 +47,11 @@ export default function App() {
   return (
      <Provider store={store}>
       <ContextContent>
+       <GestureHandlerRootView>
        <NavigationContainer>
          <StackNavigation />
        </NavigationContainer>
+       </GestureHandlerRootView>
       </ContextContent>
      </Provider>
   )

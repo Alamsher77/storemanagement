@@ -5,6 +5,7 @@ import MainPage from './Screens/MainPage'
 import Store from './Screens/Store'
 import MyTabBar from './component/MyTabs'
 import Analysis from './Screens/Analysis'
+import Ledger from './Screens/Ledger'
 import Colors from './Colors'
 import ModelContainer from './component/ModelContainer'
 import DragableModel from './component/DragableModel'
@@ -86,6 +87,7 @@ if (!themes) return null;
         headerTintColor:themes.theme.color
       }} tabBar={(props) => <MyTabBar {...props} />}  >
         <Tab.Screen name="Main" options={{ headerShown: false }} component={MainPage} />
+        <Tab.Screen name="Ledger" options={{ headerShown: false }} component={Ledger} />
         <Tab.Screen name="Analysis" component={Analysis} />
         <Tab.Screen
         options={{

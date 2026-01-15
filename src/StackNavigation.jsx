@@ -9,11 +9,14 @@ import ProductCategry from './Screens/Home/ProductCategry';
 import TotalSold from './Screens/Home/TotalSold'; 
 import ViewSaleBillDetails from './Screens/Home/ViewSaleBillDetails'
 import UserBankingDetails from './Screens/Home/UserBankingDetails'
+import CustomerDetails from './Screens/Ledger/customer_details'
+import Customer_manage_payment from './Screens/Ledger/Customer_manage_payment'
 import Toast from 'react-native-toast-message'
 import { useDispatch,useSelector } from "react-redux";
-import {getProducts,getSales} from './Storage/Database' 
+import {getProducts,getSales,dbConnection} from './Storage/Database' 
 import {setProducts,setProductCategry} from './redux/productSlice'
 import {setSale,setMonthlySaleData,setTodayIncome} from './redux/saleSlice'
+import {setCustomers} from './redux/ledgerSlice'
 import Saleanalysis from './analysis'
 import DateAndTime from './dateAndTime'
 export default function StackNavigation() {
@@ -27,6 +30,7 @@ export default function StackNavigation() {
   useEffect(() => {
   loadProducts();
   laodSales()
+  loadUsers()
   }, []);
 
 const loadProducts = async () => {
@@ -34,7 +38,7 @@ const loadProducts = async () => {
   const rows = await getProducts();  
    dispatch(setProducts(rows))
   } catch (e) {
-    console.log('product fetch error '+e.message)
+    console.log('product fetch error '+e)
   }
   
 };
@@ -52,6 +56,15 @@ const laodSales = async ()=>{
     dispatch(setSale(someSaleDataToParse))
   } catch (e) {
       console.log('sale fetch error '+e.message)
+  }
+}
+const loadUsers = async ()=>{
+  try {
+    const db = await dbConnection()
+   const userdata = await db.getAllAsync("SELECT * FROM users ORDER BY id DESC");
+  dispatch(setCustomers(userdata))
+  } catch (e) {
+      console.log('users fetch error ',e)
   }
 }
 
@@ -97,6 +110,8 @@ const todayIncome = Saleanalysis({SaleRecords:getsalesdata,specificDate:todayDat
         <Stack.Screen options={{headerShown:false}} name='TotalSold' component={TotalSold} /> 
         <Stack.Screen  name='Bill' component={ViewSaleBillDetails} /> 
         <Stack.Screen  name='UserBankingDetails' component={UserBankingDetails} />
+        <Stack.Screen  name='CustomerDetails' component={CustomerDetails} />
+        <Stack.Screen  name='Customer_manage_payment' component={Customer_manage_payment} />
 
       </Stack.Navigator>
       

@@ -44,6 +44,7 @@ import DateAndTime from '../dateAndTime'
 import Currancy from '../Currancy'
 import { useSelector,useDispatch } from "react-redux"; 
 import {addProductData,removeProduct,editProduct} from '../redux/productSlice'
+import Animated,{LinearTransition} from 'react-native-reanimated'
 export default function Store() { 
   
   const {themes,fetchData,dataloading} = useContext(ProductContext) 
@@ -212,7 +213,7 @@ if (!themes) return null;
               <Text style={{fontWeight:'600',color:activeCategoryButton == null ? '#fff': Colors.mainColor}}>ALL</Text>
              </Pressable> 
      
-     <FlatList 
+     <Animated.FlatList 
         data={productCategory}
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -224,6 +225,7 @@ if (!themes) return null;
              </Pressable>
         )}} 
         contentContainerStyle={{gap:4}}
+        itemLayoutAnimation={LinearTransition}
      /> 
      </View>
     }
@@ -236,7 +238,7 @@ if (!themes) return null;
       searchProduct?.length == 0 ?
       <Text style={{color:themes.theme.color}}>No Records</Text>
       :
-        <FlatList 
+        <Animated.FlatList 
         data={searchProduct}
         vertical
         showsHorizontalScrollIndicator={false}
@@ -249,6 +251,7 @@ if (!themes) return null;
         initialNumToRender={10}   // pehle sirf 10 render kare
         maxToRenderPerBatch={10}  // ek batch me 10 hi render kare
         windowSize={5}            // sirf 5
+        itemLayoutAnimation={LinearTransition}
         />
        
        
