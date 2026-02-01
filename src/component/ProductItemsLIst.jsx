@@ -51,6 +51,10 @@ const ProductItemsList = memo(({
           </View> 
           
           <View style={{alignItems:'center'}}>
+           <Text style={{fontWeight:'600',fontSize:13,color:Colors.mainColor}}>#{items?.id}</Text>
+          </View> 
+          
+          <View style={{alignItems:'center'}}>
            <Text style={{fontWeight:'600',fontSize:13,color:Colors.mainColor}}>Sale Price</Text>
            <Text style={{color:'#777',fontWeight:'600'}}>{Currancy(items?.salePrice)}</Text>
           </View> 

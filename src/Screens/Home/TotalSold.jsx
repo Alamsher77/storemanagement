@@ -81,12 +81,20 @@ const [filterSwitch,setFilterSwitch] = useState(false)
   const searchHandler = (text)=>{
     setSearchText(text)
     const filterseachitems = text.length === 0 ? null : itemsRecords.filter((items)=>{  
-      return  text.length === 0 ? false : (items.name.toLowerCase().includes(text.toLowerCase()) || items.category.toLowerCase().includes(text.toLowerCase()) || items.size.toLowerCase().includes(text.toLowerCase()) || items.salePrice.toString().toLowerCase().includes(text.toLowerCase())) && items.stock > 0
+      return  text.length === 0 ? false : (items.name.toLowerCase().includes(text.toLowerCase()) || items.category.toLowerCase().includes(text.toLowerCase()) || items.size.toLowerCase().includes(text.toLowerCase()) || items.salePrice.toString().toLowerCase().includes(text.toLowerCase()) || String(items?.id).includes(text))
     }) 
     setSearchProduct(filterseachitems)
    
   // using query by = sale product filter
     const findThequery = text.split('=')[1]
+    const findHash = text.split('#')[1]
+    if (text.includes("#")) {
+       const filterseachitemsbyhash = text.length === 0 ? null : itemsRecords.filter((items)=>{  
+      return  text.length === 0 ? false : String(items?.id) === findHash
+    }) 
+    setSearchProduct(filterseachitemsbyhash)
+    }
+    
    if (text.includes('=')) {
     if (SaleRecords.filter(saleitem => (saleitem.date.includes(findThequery.trim())))) {
     

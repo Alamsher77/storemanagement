@@ -28,48 +28,12 @@ export default function MainPage() {
    const [showPoupup, setShowpopup] = useState(true)
  const [loading,setLoading] = useState(false)
  const [selectFileData,setSelectFileData] = useState(null)
- const ConverToSqlitDbFile = async(conOption)=>{
-  try {
-    
-    if (conOption == 'upload') {
-      const result = await DocumentPicker.getDocumentAsync({type:'application/json'}); 
-       if (result.canceled) {
-         setSelectFileData(null)
-         return false
-       }
-      setSelectFileData(result) 
-      return false
-    }
-    alert('convert')
-      
-  } catch (e) {
-    console.log(e.message)
-  }
- }
- if (!themes) return null;
+ 
+if (!themes) return null;
   return (
       <>
       <DragableModel minHeight={300} openDragableModel={openDragableModel} setOpenDragableModel={setOpenDragableModel} > 
-        <View style={{flexDirection:'row',gap:8,alignItems:'center',marginTop:10}}>
-         <Text style={{color:themes.theme.color}}>Please Select json file</Text>
-         <TouchableOpacity onPress={()=>ConverToSqlitDbFile('upload')} style={{outlineWidth:1,outlineColor:Colors.mainColor,paddingHorizontal:8,paddingVertical:4,}}>
-         {
-           loading ?
-             <ActivityIndicator color={Colors.mainColor} size={25} />
-             :
-             <Fontisto color={themes.theme.color} name='upload' size={25} />
-         } 
-         </TouchableOpacity>
-        </View>
-       {
-         selectFileData &&
-         <View style={{marginTop:12,gap:8,justifyContent:'space-between',paddingHorizontal:4,flexDirection:'row'}}>
-           <Text style={{color:themes.theme.color}}>Selected File Name : {selectFileData.assets[0].name}</Text>
-           <TouchableOpacity onPress={()=>ConverToSqlitDbFile('convert')} style={{outlineWidth:1,outlineColor:Colors.mainColor,paddingHorizontal:8,paddingVertical:4,}}>
-            <Text style={{color:themes.theme.color}}>Convert To DbFile</Text>
-           </TouchableOpacity>
-         </View>
-       }
+         
       </DragableModel>
       {/* Heder Styles */}
       <View style={{ elevation: 5, flexDirection: "row", justifyContent: 'space-between', width: '100%', backgroundColor:themes.theme.backgroundTheme, alignItems: 'center', paddingHorizontal: 15,paddingVertical:4}}>

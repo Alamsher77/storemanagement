@@ -19,6 +19,7 @@ const CustomerDetails = ()=>{
 const {customers} = useSelector((state)=>state.customers)
 const {params:{customer_id}} = useRoute()
 const [currentCustomer,setCurrentCustomer] = useState(null)
+const [scrollListHeight,setScrollListHeight] = useState(0)
 const [allDueTransaction,setAllDueTransaction] = useState([])
 
 
@@ -29,7 +30,9 @@ useEffect(()=>{
 const navigation = useNavigation() 
 useLayoutEffect(()=>{
   navigation.setOptions({
-    headerTitle:()=> <TouchableOpacity >
+    headerTitle:()=> <TouchableOpacity
+     onPress={()=> navigation.navigate('Customer_manage_payment',{customer_id,transaction_type:'UserProfile',})}
+    >
     <Text  style={{color:themes.theme.color,fontWeight:'800'}}>{currentCustomer?.name} {'\n'} <Text style={{lineHeight:12,fontWeight:'400',color:'rgba(0,200,0,0.6)'}}>view profile</Text></Text> 
     </TouchableOpacity>
   })
@@ -39,20 +42,19 @@ const listRef = useRef(null);
 
 useEffect(() => {
   if (listRef.current) {
-    setTimeout(() => {
-      listRef.current.scrollToEnd({ 
+     listRef.current.scrollToEnd({
+        offset: scrollListHeight,
         animated: false,
       });
-    }, 100);
   }
-}, [currentCustomer]);
+}, [currentCustomer,scrollListHeight]);
 useFocusEffect(
 useCallback(() => {
  const fetchDueTrasaction = async ()=>{
    try {
       const db = await dbConnection()
-   const userdata = await db.getAllAsync("SELECT * FROM users_transaction WHERE user_id = ? ORDER BY date",[customer_id]);
-   setAllDueTransaction(userdata)
+   const userdata = await db.getAllAsync("SELECT * FROM users_transaction WHERE user_id = ? ORDER BY date",[customer_id]); 
+   setAllDueTransaction(calculateRunningBalance(userdata))
    } catch (e) {
    console.log(e)
      
@@ -61,8 +63,7 @@ useCallback(() => {
  fetchDueTrasaction()
 }, [])
 )
-const [currentTransactionList,setCurrentTransationList] = useState(null) 
-
+const [currentTransactionList,setCurrentTransationList] = useState(null)  
   return(
      <View style={{position:'relative',flex:1,backgroundColor:themes.theme.backgroundTheme,gap:10}}>
       <FlatList
@@ -85,12 +86,13 @@ const [currentTransactionList,setCurrentTransationList] = useState(null)
           <Text style={{fontWeight:'600',color:'#ffe'}}>{DateFormate(item?.date)}</Text>
          </View>
          }
+         <View style={{alignSelf:item?.transaction_type == 'given' ? 'flex-end' : 'flex-start'}}>
           <TouchableOpacity 
           onPress={()=> item?.sale_id.trim() ? setCurrentTransationList(item) : navigation.navigate('Customer_manage_payment',{customer_id,transaction_type:'editAndDelete',curretnTransactionList:item})}
-          style={{borderWidth:1,alignSelf:item?.transaction_type == 'given' ? 'flex-end' : 'flex-start',paddingHorizontal:4,paddingVertical:6,
+          style={{borderWidth:1,paddingHorizontal:4,paddingVertical:6,
             borderRadius:4,borderColor:item?.transaction_type == 'given' ? 'rgba(200,0,0,1)' : 'rgba(0,200,0,1)',
             backgroundColor:item?.transaction_type == 'given' ? 'rgba(200,0,0,0.1)' : 'rgba(0,200,0,0.1)',
-            width:180
+            maxWidth:220
           }}>
             <View style={{flexDirection:'row',alignItems:'center',gap:6}}>
              <Entypo color={item?.transaction_type == 'given' ? 'rgba(200,0,0,1)' : 'rgba(0,200,0,1)'} size={20} name={item?.transaction_type == 'given' ? 'arrow-up' : 'arrow-down'} />
@@ -102,8 +104,10 @@ const [currentTransactionList,setCurrentTransationList] = useState(null)
           {
             item?.description.trim().length > 0 &&
               <Text style={{color:'#666'}}>{item?.description}</Text>
-          }
+          } 
           </TouchableOpacity> 
+          <Text_Content style={{alignSelf: item?.transaction_type === 'given' ? 'flex-end' : 'flex-start',fontSize:12}}>{Currency(Math.abs(item?.runningBalance))} Due</Text_Content>
+          </View>
            {
             currentTransactionList && currentTransactionList?.id === item?.id &&
             <Animated.View 
@@ -128,6 +132,7 @@ const [currentTransactionList,setCurrentTransationList] = useState(null)
          )
        }}
        showsVerticalScrollIndicator={false}
+       onContentSizeChange={(w, h) => setScrollListHeight(h)}
        contentContainerStyle={{gap:8,paddingHorizontal:10,paddingTop:20}} 
       />
       <View style={{backgroundColor: themes.mode == 'light' ? 'rgba(0,80,0,0.1)' : '#d6b3a1',padding:10,paddingBottom:20,width:'100%',height:120,justifyContent:'space-between'}}>
@@ -160,5 +165,24 @@ const [currentTransactionList,setCurrentTransationList] = useState(null)
      </View>
     )
 }
+
+
+
+const calculateRunningBalance = (transactions) => {
+  let balance = 0;
+
+  return transactions.map((item) => {
+    if (item.transaction_type === "given") {
+      balance += Number(item.total_due);
+    } else {
+      balance -= Number(item.total_due);
+    }
+
+    return {
+      ...item,
+      runningBalance: balance,
+    };
+  });
+};
 
 export default CustomerDetails

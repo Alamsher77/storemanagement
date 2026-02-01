@@ -14,6 +14,7 @@ export async function dbConnection() {
     return dbInstance;
   }
 
+
   isOpening = true;
 
   dbInstance = await SQLite.openDatabaseAsync('productStore.db');
@@ -74,7 +75,9 @@ export async function dbConnection() {
         name TEXT,
         phone TEXT,
         grand_total_due INTEGER,
-        latest_transaction_payment_type TEXT
+        latest_transaction_payment_type TEXT,
+        address TEXT,
+        created_date TEXT
       );
     `); 
   }
@@ -109,10 +112,7 @@ export async function addSale(sale) {
 const productsJson = await JSON.stringify(sale.products)
 const duesJson =  await JSON.stringify(sale?.dues)
   
-// const products = await db.getFirstAsync('SELECT * FROM product_sale WHERE customerName = ?;', [sale.customerName]);
-// if (products) {
-//   return {success:false,message:'already created'}
-// }
+
 const saleCreated =  await db.runAsync(query, [ 
     sale.customerName,
     productsJson,
@@ -148,11 +148,7 @@ export async function addProduct(product) {
     return {success:false,message:'Please Provide Filds'}
   }
   
-  const created = await db.getFirstAsync('SELECT * FROM products WHERE name = ?;', [product.name]);
   
-if (created) {
-    return{success:false,message:'Allredy created'}
-}
   const dataRecive = await db.runAsync(query, [
     product.name,
     product.stock,
@@ -188,6 +184,23 @@ export async function getProducts() {
 export async function getSales() {
   const db = await dbConnection();
   return await db.getAllAsync("SELECT * FROM product_sale ORDER BY id DESC");
+}
+
+export async function updateUsersDetails({updatedAmount,transactionAmount,type,updatedDate,customer_id,latestType}) {
+  const db = await dbConnection();
+  try {
+  if (type === 'given') {
+    const updateUsersDueAmount = await db.runAsync("UPDATE users SET grand_total_due = grand_total_due - ? , latest_transaction_amount = ? ,latest_transaction_date = ? , latest_transaction_payment_type = ?  WHERE id = ?;",[updatedAmount,transactionAmount,updatedDate,latestType,customer_id])
+    return {message:'Given data updated',success:true}
+  }else if(type === 'recieve'){
+    const updateUsersDueAmount = await db.runAsync("UPDATE users SET grand_total_due = grand_total_due + ? , latest_transaction_amount = ? ,latest_transaction_date = ? , latest_transaction_payment_type = ?  WHERE id = ?;",[updatedAmount,transactionAmount,updatedDate,latestType,customer_id])
+     return {message:'Recieve data updated',success:true}
+  }else{
+    return {message:'Please correct type to update',success:false}
+  }
+  } catch (e) {
+    return {message:e.message,success:false}
+  } 
 }
 
 

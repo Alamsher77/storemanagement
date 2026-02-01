@@ -220,10 +220,7 @@ const listOfFilterCustomer = [
    },
    {
      lable:'Latest Activity',value:'latest-activity'
-   },
-   {
-     lable:'Due Date',value:'due-date'
-   },
+   }, 
    {
      lable:'Name',value:'name'
    },

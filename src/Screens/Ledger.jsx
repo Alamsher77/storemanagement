@@ -3,7 +3,7 @@ import ScrollContainer from '../component/ScrollContainer'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import Feather from 'react-native-vector-icons/Feather'
 import Colors from '../Colors'
-import {useContext,useState,useRef,useEffect} from 'react'
+import {useContext,useState,useRef,useEffect,useCallback} from 'react'
 import {ProductContext} from '../Context/Contextcontent'
 import { LinearGradient } from 'expo-linear-gradient';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
@@ -15,12 +15,17 @@ import Text_Content from '../component/Text_Content'
  import {dbConnection} from '../Storage/Database'
  import Toast from 'react-native-toast-message'
  import { useSelector,useDispatch} from "react-redux";
- import {createCustomers } from '../redux/ledgerSlice'
+ import {createCustomers,setCustomers } from '../redux/ledgerSlice'
+ import DateAndTime from '../dateAndTime'
+ import migrateDB from '../Utils/migrateDb'
+ import AnimatedButton from '../component/Button'
+import {useFocusEffect} from '@react-navigation/native';
 const PressableAnimation = Animated.createAnimatedComponent(Pressable)
  const LinearGradientAnimated = Animated.createAnimatedComponent(LinearGradient)
 const Ledger = ()=>{
 const dispatch = useDispatch()
 const {customers} = useSelector((state)=> state.customers) 
+const [searchCustomer,setSeachCustomer] = useState([])
 const {themes} = useContext(ProductContext)
 const [searchQuery,setSearchQuery] = useState('')
 const changeHeight = useSharedValue(0)
@@ -36,7 +41,7 @@ const ShowAndAndOverlayOfFilterCustomer = ()=>{
     easing: Easing.bounce
   })
   changeZIndex.value = 10
-  changeHeight.value = withTiming(210,{
+  changeHeight.value = withTiming(174,{
     duration:2000,
     easing: Easing.bounce,
   })
@@ -68,19 +73,22 @@ const [usersData,setUserData] = useState({
     name:'',
     phone:'',
     grand_total_due:0, 
-    latest_transaction_payment_type:'payment',
+    latest_transaction_payment_type:'add',
+    latest_transaction_date:DateAndTime()?.formatDate,
+    created_date:DateAndTime()?.formatDate, 
   })
   const [userLoading,setUserLoading] = useState(false)
 const createUserHandler = async()=>{ 
   try {
     setUserLoading(true)
-     const db = await dbConnection() 
-     
+    const db = await dbConnection()  
+    await migrateDB(db)
   const query = `
-    INSERT INTO users (name,phone, grand_total_due, latest_transaction_payment_type)
-    VALUES (?, ?, ?, ?);
+    INSERT INTO users (name,phone, grand_total_due, latest_transaction_payment_type, latest_transaction_date)
+    VALUES (?, ?, ?, ?, ?);
   `;
   const createdUser = await db.getFirstAsync('SELECT * FROM users WHERE name = ?;', [usersData.name]);
+  setUserLoading(false)
 if (createdUser) {
   Toast.show({type:'error',text1:'User Alrady Created'})
   return false
@@ -90,9 +98,9 @@ const userCreated =  await db.runAsync(query, [
     usersData.phone,
     usersData.grand_total_due,
     usersData.latest_transaction_payment_type,
+    usersData?.latest_transaction_date
   ]);
-  console.log(userCreated)
-  setUserLoading(false)
+ 
     Toast.show({type:'success',text1:'User Created SuccessFull'})
     dispatch(createCustomers({...usersData,id:userCreated.lastInsertRowId}))
     setOpenDragableModel(false)
@@ -100,6 +108,87 @@ const userCreated =  await db.runAsync(query, [
     setUserLoading(false)
     console.log(e)
   }
+}
+
+
+const searchHandler = (text)=>{
+  setSearchQuery(text)
+try {
+ const serch = customers.filter((c)=> c.name.toLowerCase().includes(text.toLowerCase()) || String(c?.phone).includes(text))
+  setSeachCustomer(serch)
+} catch (e) {
+  console.log(e);
+}
+
+}
+
+// laod user by filtring and render ones
+useFocusEffect(
+    useCallback(() => {
+      loadUsers() 
+    },[customers])
+  );
+const loadUsers = async ()=>{
+  try {
+    const db = await dbConnection()
+   const userdata = await db.getAllAsync("SELECT * FROM users ORDER BY latest_transaction_date DESC , id DESC");
+   setSeachCustomer(userdata)
+  } catch (e) {
+      console.log('users fetch error ',e)
+  }
+}
+
+// filter by user changest filter query
+
+const filterCustomerHandler = (value)=>{
+  try{
+ 
+switch (value) {
+
+  case 'name': {
+    const sorted = [...searchCustomer].sort((a, b) =>
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    );
+    setSeachCustomer(sorted);
+    break;
+  }
+
+  // 💰 Last payment high to low
+  case 'last-payment': {
+    const sorted = [...searchCustomer].sort((a, b) =>
+      (Math.abs(b.grand_total_due) || 0) - (Math.abs(a.grand_total_due) || 0)
+    );
+    setSeachCustomer(sorted);
+    break;
+  }
+
+  // 🕒 Latest activity (recent first)
+  case 'latest-activity': {
+    const sorted = [...searchCustomer].sort((a, b) =>
+      new Date(b.latest_transaction_date) - new Date(a.latest_transaction_date)
+    );
+    setSeachCustomer(sorted);
+    break;
+  }
+
+  // 📅 Due date nearest first
+  case 'due-date': {
+    const sorted = [...searchCustomer].sort((a, b) =>
+      new Date(a.due_date) - new Date(b.due_date)
+    );
+    setSeachCustomer(sorted);
+    break;
+  }
+
+  default:
+    setSeachCustomer(customers);
+}
+
+  setFilterActive(value) 
+
+}catch(e){
+  console.log(e)
+}
 }
 return (
   <>
@@ -139,7 +228,7 @@ return (
   
   return(
    <PressableAnimation
-   onPress={()=>setFilterActive(value.value)}
+   onPress={()=>filterCustomerHandler(value.value)}
    style={[{width:'85%',paddingHorizontal:8,paddingVertical:4,borderWidth:1,borderColor:'#fff',backgroundColor:filterActive == value.value ? Colors.mainColor : 'transparent',transform:[{scale:filterActive == value.value ? 1.05 : 1}]}]}
    key={index}>
    
@@ -159,13 +248,13 @@ return (
    }}>
   {
     searchQuery?.trim()?.length > 0 &&
-     <PressableAnimation   entering={FadeInRight} exiting={FadeOutDown}  onPress={()=>setSearchQuery('')} style={{width:40,height:40 ,position:'absolute',right:0,justifyContent:'center',alignItems:'center',zIndex:10}}>
+     <PressableAnimation   entering={FadeInRight} exiting={FadeOutDown}  onPress={()=>searchHandler("")} style={{width:40,height:40 ,position:'absolute',right:0,justifyContent:'center',alignItems:'center',zIndex:10}}>
     <MaterialIcons color="#fff" size={20} name='clear' />
    </PressableAnimation>
   }
     <TextInput
     value={searchQuery}
-    onChangeText={(text)=>setSearchQuery(text)}
+    onChangeText={(text)=> searchHandler(text)}
     style={
      {
        color:'#fff',
@@ -200,11 +289,15 @@ return (
     </LinearGradient>
     </PressableAnimation>
    </View>
-  <ScrollContainer style={{gap:6}}>
+  <ScrollContainer style={{gap:6,width:'100%'}}>
    {
-     customers?.map((item,index)=>{
+    searchCustomer.length === 0 ?
+     
+      <Text_Content>No customer records</Text_Content>
+    :
+     searchCustomer?.map((item,index)=>{
        return(
-         <LadgerCustomerList item={item} key={index} />
+         <LadgerCustomerList  item={item} key={index} />
        )
      })
    }
@@ -243,11 +336,15 @@ return (
          placeholderTextColor={themes.theme.color} style={{color:themes.theme.color,width:'80%'}} />
          </View>
       </View>
-      <Pressable
-      onPress={createUserHandler}
+      
+        <AnimatedButton
       disabled={!usersData?.name.trim().length > 0 || userLoading}
-       style={{marginTop:20,width:'70%',paddingVertical:8,backgroundColor:'rgba(0,160,0,1)',alignItems:'center',borderRadius:8,opacity: usersData?.name.trim().length > 0  ? 1 : 0.3}}
-      ><Text_Content style={{color:'#fff',fontWeight:'800'}}>{userLoading ? <ActivityIndicator color="#fff" size="small" /> : "Confirm"}</Text_Content></Pressable>
+      onPress={createUserHandler}
+      style={{width:250,marginTop:20}}
+      bgColor="rgba(0,160,0,1)"
+      color="#fff"
+      title={userLoading ? <ActivityIndicator color="#fff" size="small" /> : "Confirm"}
+      />  
       </DragableModel>
   </>
   )

@@ -14,7 +14,7 @@ const ampm = hours >= 12 ? 'PM' : 'AM';
   hours = hours === 0 ? 12 : hours; // 0 ko 12 banao
 const fulldate = `${day}-${month}-${year}`
 const fullTime = `${hours}:${minutes}:${ampm}` 
-const formatDate = `${year}-${month}-${day}` 
+const formatDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}` 
 return {date:fulldate,time:fullTime,formatDate}
 }
 

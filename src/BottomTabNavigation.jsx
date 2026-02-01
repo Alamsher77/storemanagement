@@ -54,8 +54,6 @@ export default function BottomTabNavigation() {
    
   }
  
-if (!themes) return null;
-
   return (
     <>
       {/* model for virsion Update for apps  */}

@@ -139,22 +139,6 @@ await db.runAsync(
  const [activeCategoryButton,setActiveCategoryButton] = useState(null)
  
 
-// const [filterProductWithCategoryOrStock,setFilterProductWithCategoryOrStock] = useState([])
-
-// useEffect(()=>{
-//   const productFilter = async ()=>{
-//     const db = await dbConnection();
-//     const results = await db.getAllAsync(
-//   `SELECT * FROM products
-//   WHERE (:activeCategoryButton IS NULL OR UPPER(category) = :activeCategoryButton)
-//   ORDER BY stock ASC
-//   LIMIT 150;`,
-//   [activeCategoryButton ? activeCategoryButton.toUpperCase() : null]
-// );
-//     setFilterProductWithCategoryOrStock(results)
-//   }
-//   productFilter()
-// },[activeCategoryButton])
 const filterProductWithCategoryOrStock = itemsRecords?.filter((items)=>{
 return activeCategoryButton ? activeCategoryButton == items?.category?.toUpperCase()  : items
 }).sort((a,b)=> a.stock - b.stock)
@@ -164,13 +148,13 @@ return activeCategoryButton ? activeCategoryButton == items?.category?.toUpperCa
     setSearchText(text)
     const filterseachitems = text.length === 0 ? null : itemsRecords.filter((items)=>{
        
-      return  text.length === 0 ? false : (items.name.toLowerCase().includes(text.toLowerCase()) || items.category.toLowerCase().includes(text.toLowerCase()) || items.size.toLowerCase().includes(text.toLowerCase()) || items.salePrice.toLowerCase().includes(text.toLowerCase()) )
+      return  text.length === 0 ? false : (items.name.toLowerCase().includes(text.toLowerCase()) || items.category.toLowerCase().includes(text.toLowerCase()) || items.size.toLowerCase().includes(text.toLowerCase()) || items.salePrice.toLowerCase().includes(text.toLowerCase()) || String(items.id).includes(text))
     }) 
     setSearchProduct(filterseachitems)
    
   } 
 
-if (!themes) return null;
+//if (!themes) return null;
   return (
     <View style={{backgroundColor:themes.theme.backgroundTheme,position:'relative',flex:1,paddingBottom:90}}>
     <DragableModel
@@ -269,7 +253,7 @@ if (!themes) return null;
         return (
         <ProductItemsList editHandler={editHandler} deleteHandler={deleteHandler}  items={item}  />
       )}}
-         contentContainerStyle={{gap:4}}
+         contentContainerStyle={{gap:4,paddingBottom:40}}
          keyExtractor={(item, index) => index.toString()}
         initialNumToRender={10}
           windowSize={5}

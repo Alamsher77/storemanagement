@@ -4,13 +4,13 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DateFormate from '../../dateFormate'
 import Text_Content from '../../component/Text_Content'
-import {dbConnection} from '../../Storage/Database' 
+import {dbConnection,updateUsersDetails} from '../../Storage/Database' 
 import { useNavigation } from '@react-navigation/native';
 import DateAndTime from '../../dateAndTime'
 import Toast from 'react-native-toast-message'
  import {useSelector,useDispatch } from "react-redux";
  import {decreaseDue,increaseDue} from '../../redux/ledgerSlice'
-
+import AnimatedButton from '../../component/Button'
 const Transaction_recieve = ({themes,customer_id})=>{
    const navigation = useNavigation()
   const dispatch = useDispatch()
@@ -45,10 +45,10 @@ const Transaction_recieve = ({themes,customer_id})=>{
     setDueLoading(true)
     const db = await dbConnection() 
  
-  const query = `
-    INSERT INTO users_transaction (sale_id,user_id, transaction_type, total_due, description, date,time)
-    VALUES (?, ?, ?, ?, ?, ?, ?);
-  `;
+    const query = `
+      INSERT INTO users_transaction (sale_id,user_id, transaction_type, total_due, description, date,time)
+      VALUES (?, ?, ?, ?, ?, ?, ?);
+    `;
 
 const transactionCreated=  await db.runAsync(query, [ 
     dueTransaction.sale_id,
@@ -59,13 +59,24 @@ const transactionCreated=  await db.runAsync(query, [
     dueTransaction.date,
     dueTransaction.time
   ]);
-  
-     const updateUsersDueAmount = await db.runAsync("UPDATE users SET grand_total_due = grand_total_due + ? WHERE id = ?;",[givenAmount,customer_id])
-     dispatch(decreaseDue({userId:customer_id,amount:givenAmount}))
-   setDueLoading(false)
-    Toast.show({type:'success',text1:'Due added SuccessFull'})
-    
-    navigation.goBack()
+     await updateUsersDetails({
+           type:'recieve',
+           updatedAmount:givenAmount,
+           transactionAmount:givenAmount,
+           updatedDate:DateAndTime().formatDate,
+           customer_id,
+           latestType:'payment'
+         }) 
+     dispatch(decreaseDue({
+           userId:customer_id,
+           amount:givenAmount,
+           latest_transaction_payment_type:'payment',
+           latest_transaction_date:DateAndTime()?.formatDate,
+           latest_transaction_amount:givenAmount
+           }))  
+     setDueLoading(false)
+     Toast.show({type:'success',text1:'Due added SuccessFull'})
+     navigation.goBack()
     
   } catch (e) {
     setDueLoading(false)
@@ -121,17 +132,18 @@ const transactionCreated=  await db.runAsync(query, [
           mode="date"
           display="default"
           onChange={ChangeDateHandler}
-          maximumDate={dateValue}
+          maximumDate={new Date()}
         />
       )}
       
-      <TouchableOpacity
+     <AnimatedButton
       disabled={dueTransaction?.total_due?.trim().length === 0 || dueLoading}
       onPress={DueConfirmHandler}
-      style={{backgroundColor:'rgba(0,180,0,1)',width:250,justifyContent:'center',alignItems:'center',paddingVertical:6,borderRadius:6,opacity:dueTransaction?.total_due?.trim().length === 0 ? 0.2 : 1}}
-      >
-       <Text style={{color:'#fff',fontWeight:'700',fontSize:18}}> {dueLoading ? "Loading..." : "Confirm"}</Text>
-      </TouchableOpacity>
+      style={{width:250}}
+      bgColor="rgba(0,180,0,1)"
+      color="#fff"
+      title={dueLoading ? "Loading..." : "Confirm"}
+      />
      </View>
     )
 }

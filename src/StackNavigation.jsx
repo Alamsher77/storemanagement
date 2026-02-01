@@ -61,7 +61,7 @@ const laodSales = async ()=>{
 const loadUsers = async ()=>{
   try {
     const db = await dbConnection()
-   const userdata = await db.getAllAsync("SELECT * FROM users ORDER BY id DESC");
+   const userdata = await db.getAllAsync("SELECT * FROM users ORDER BY latest_transaction_date DESC , id DESC");
   dispatch(setCustomers(userdata))
   } catch (e) {
       console.log('users fetch error ',e)
@@ -95,7 +95,7 @@ const todayIncome = Saleanalysis({SaleRecords:getsalesdata,specificDate:todayDat
 }, [getsalesdata]);
 
   
-  if (!theme) return null;
+//  if (!theme) return null;
   return (
     <>
       {/* <View style={{width:'100%',height:40,}} /> */}

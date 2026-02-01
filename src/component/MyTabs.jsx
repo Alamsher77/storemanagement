@@ -15,7 +15,7 @@ export default function MyTabBar({ state, descriptors, navigation }) {
   const { colors } = useTheme();
   const LinearGradientAnimated = Animated.createAnimatedComponent(LinearGradient)
  
-  if (!state || !navigation) return null;
+  //if (!state || !navigation) return null;
   return (
     <View style={[styles.container,{backgroundColor:themes.theme.backgroundTheme}]}> 
       {state.routes.map((route, index) => {
