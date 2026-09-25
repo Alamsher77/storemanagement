@@ -4,7 +4,7 @@ import Colors from '../Colors'
 import React,{useContext,useState} from 'react'
 import {ProductContext} from '../Context/Contextcontent'
 import {addItem,readData} from '../Storage/jsonStorage'
-const ProductItemsForm = ({setItemsData,itemsData,setOpenDragableModel,fetchData,submitHandler,lable})=>{
+const ProductItemsForm = ({setItemsData,itemsData,setOpenDragableModel,submitHandler,lable})=>{
    const {themes} = useContext(ProductContext)
   const unitOption  = ['PEES','BOX','BAG',]
   const sizeOption = ["Hide Size",'Show Size']

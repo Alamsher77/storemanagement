@@ -82,15 +82,16 @@ export default function BottomTabNavigation() {
 
       <Tab.Navigator screenOptions={{
         headerStyle:{backgroundColor:themes.theme.backgroundTheme,elevation:4,shadowColor:themes.theme.color},
-        headerTintColor:themes.theme.color
+        headerTintColor:themes.theme.color,
+        headerShown:false
       }} tabBar={(props) => <MyTabBar {...props} />}  >
-        <Tab.Screen name="Main" options={{ headerShown: false }} component={MainPage} />
-        <Tab.Screen name="Ledger" options={{ headerShown: false }} component={Ledger} />
+        <Tab.Screen name="Main"   component={MainPage} />
+        <Tab.Screen name="Ledger"  component={Ledger} />
         <Tab.Screen name="Analysis" component={Analysis} />
         <Tab.Screen
         options={{
          headerRight: () => <StoreHeader title="Store" />,
-         headerShown: true
+         headerShown:true
         }}
 
         name="Store" component={Store} />

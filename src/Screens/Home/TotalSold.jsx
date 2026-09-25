@@ -421,12 +421,7 @@ useFocusEffect(
 if (!themes) return null;
   return (
     <> 
-    <StatusBar
-  translucent={false}
-  backgroundColor={Colors.mainColor}
-  barStyle={'light-content'}
-/>
-     <View style={{borderBottomWidth:0.6,borderColor:themes.theme.color}}>
+     <View style={{borderBottomWidth:0.6,borderColor:themes.theme.color,paddingTop:40,backgroundColor:Colors.mainColor}}>
      <View style={styles.header}>
       <Pressable onPress={()=>navigation.goBack()}>
         <FontAwesome6 size={20} color={"#fff"} name="arrow-left" />

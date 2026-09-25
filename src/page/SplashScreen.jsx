@@ -6,13 +6,13 @@ export default function SplashScreen() {
     useEffect(() => {
       Animated.timing(opacity, {
       toValue: 0,
-      duration: 2000,
+      duration: 7000,
       useNativeDriver: true,
     }).start(); 
 
       Animated.timing(scale, {
       toValue: 6,
-      duration: 2000,
+      duration: 7000,
       useNativeDriver: true,
     }).start(); 
     }, [scale,opacity])

@@ -47,7 +47,7 @@ import {addProductData,removeProduct,editProduct} from '../redux/productSlice'
 import Animated,{LinearTransition} from 'react-native-reanimated'
 export default function Store() { 
   
-  const {themes,fetchData,dataloading} = useContext(ProductContext) 
+  const {themes} = useContext(ProductContext) 
   const dispatch = useDispatch()
   // get product and productCategory from redux 
   const {products:itemsRecords,produtCategry:productCategory} = useSelector((state)=>state.product)
@@ -162,7 +162,7 @@ return activeCategoryButton ? activeCategoryButton == items?.category?.toUpperCa
       openDragableModel={openDragableModel}
       minHeight={300}
       >
-    <ProductItemsForm lable={!productEdit ? 'Create':'Update'} setItemsData={setItemsData} itemsData={itemsData} submitHandler={!productEdit ? createItemsHanderl : editHandler} fetchData={fetchData} setOpenDragableModel={setOpenDragableModel} />
+    <ProductItemsForm lable={!productEdit ? 'Create':'Update'} setItemsData={setItemsData} itemsData={itemsData} submitHandler={!productEdit ? createItemsHanderl : editHandler}  setOpenDragableModel={setOpenDragableModel} />
     </DragableModel>
      
       {/*start search model  */} 
@@ -204,8 +204,8 @@ return activeCategoryButton ? activeCategoryButton == items?.category?.toUpperCa
         keyExtractor={(item, index) => index}
         renderItem={({item})=>{ 
         return(
-         <Pressable onPress={()=>setActiveCategoryButton(item)} style={{paddingHorizontal:20,backgroundColor:activeCategoryButton == item ? Colors.mainColor : themes.theme.backgroundTheme,paddingVertical:5,borderRadius:6,borderWidth:1,borderColor: activeCategoryButton == item   ?  Colors.mainColor : themes.theme.color}} >
-              <Text style={{fontWeight:'600',color:activeCategoryButton == item ? '#fff': Colors.mainColor}}>{item}</Text>
+         <Pressable onPress={()=>setActiveCategoryButton(item.category)} style={{paddingHorizontal:20,backgroundColor:activeCategoryButton == item?.category ? Colors.mainColor : themes.theme.backgroundTheme,paddingVertical:5,borderRadius:6,borderWidth:1,borderColor: activeCategoryButton == item?.category   ?  Colors.mainColor : themes.theme.color}} >
+              <Text style={{fontWeight:'600',color:activeCategoryButton == item?.category ? '#fff': Colors.mainColor}}>{item?.category}</Text>
              </Pressable>
         )}} 
         contentContainerStyle={{gap:4}}

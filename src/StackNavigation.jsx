@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react'
+import React,{useEffect,useState,useMimo} from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './page/Home';
 import About from './page/About';
@@ -19,6 +19,15 @@ import {setSale,setMonthlySaleData,setTodayIncome} from './redux/saleSlice'
 import {setCustomers} from './redux/ledgerSlice'
 import Saleanalysis from './analysis'
 import DateAndTime from './dateAndTime'
+import delay from './Utils/delay'
+import Loading from './component/loading'
+import SplashScreen from './page/SplashScreen'
+
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Octicons from 'react-native-vector-icons/Octicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 export default function StackNavigation() {
   const Stack = createNativeStackNavigator();
   const theme = useColorScheme()
@@ -26,83 +35,97 @@ export default function StackNavigation() {
   const textColor = theme == 'dark' ? '#ddd' : '#444'
  
   const dispatch = useDispatch();  
-  
+  const [loadingFetchData,setLoadingFetchData] = useState(true)
   useEffect(() => {
-  loadProducts();
-  laodSales()
-  loadUsers()
+    
+  const initStoredata = async ()=>{
+    try { 
+      console.time("all")
+      const [loadData,loadSalesdata,userdata] = await Promise.all(
+        [
+          loadProducts(),
+          laodSales(),
+          loadUsers(),
+          MaterialIcons.loadFont(),
+          Ionicons.loadFont(),
+          Octicons.loadFont(),
+          Fontisto.loadFont(),
+          FontAwesome.loadFont(),
+        ]
+        ) 
+      console.timeEnd("all")
+      console.time("category ")
+        if (loadData.length > 0) {
+          const db = await dbConnection()
+        const categories = await db.getAllAsync(`
+  SELECT DISTINCT UPPER(category) as category
+  FROM products
+  WHERE category IS NOT NULL
+  AND category != ''
+`);
+    dispatch(setProductCategry(categories));
+  }
+      console.timeEnd("category")
+  
+      console.time("analysis")
+        if (loadSalesdata.length > 0) {
+    const monthlySaleData = Saleanalysis({ SaleRecords: loadSalesdata });
+    const todayDate = (DateAndTime()).date
+
+const todayIncome = Saleanalysis({SaleRecords:loadSalesdata,specificDate:todayDate})
+    dispatch(setTodayIncome(todayIncome))
+    dispatch(setMonthlySaleData(monthlySaleData));
+  }
+        
+      console.timeEnd("analysis")
+        
+        setLoadingFetchData(false)
+        dispatch(setProducts(loadData))
+        dispatch(setSale(loadSalesdata))
+        dispatch(setCustomers(userdata))
+    } catch (e) {
+      setLoadingFetchData(false)
+      console.log(e)
+      Toast.show({
+        type:'error',
+        text1:e.message
+      })
+    }
+  } 
+  initStoredata()
   }, []);
 
 const loadProducts = async () => {
-  try { 
-  const rows = await getProducts();  
-   dispatch(setProducts(rows))
-  } catch (e) {
-    console.log('product fetch error '+e)
-  }
-  
+ return  await getProducts();  
 };
  
- const getsalesdata = useSelector((state)=> state.sale.sale)
-const laodSales = async ()=>{
-  try {
+const getsalesdata = useSelector((state)=> state.sale.sale)
+const laodSales = async ()=>{ 
     const rows = await getSales()
+  
       const  someSaleDataToParse = rows.map((saleItems)=>({...saleItems,
       dues:safeParse(saleItems?.dues),
       products:safeParse(saleItems?.products),
       updateAt:safeParse(saleItems?.updateAt)
   }))   
  
-    dispatch(setSale(someSaleDataToParse))
-  } catch (e) {
-      console.log('sale fetch error '+e.message)
-  }
+  return someSaleDataToParse
 }
-const loadUsers = async ()=>{
-  try {
+const loadUsers = async ()=>{ 
     const db = await dbConnection()
-   const userdata = await db.getAllAsync("SELECT * FROM users ORDER BY latest_transaction_date DESC , id DESC");
-  dispatch(setCustomers(userdata))
-  } catch (e) {
-      console.log('users fetch error ',e)
-  }
+  const userdata = await db.getAllAsync("SELECT * FROM users ORDER BY latest_transaction_date DESC , id DESC"); 
+  return userdata
 }
 
-const itemsRecords = useSelector((state)=>state.product.products)
-useEffect(() => {
-  if (itemsRecords.length > 0) {
-    const categories = [
-      ...new Set(
-        itemsRecords
-          .map(i => typeof i.category === 'string' ? i.category.toUpperCase() : null)
-          .filter(Boolean)
-      )
-    ];
-    dispatch(setProductCategry(categories));
-  }
-}, [itemsRecords]);
 
 
-useEffect(()=>{
-  if (getsalesdata.length > 0) {
-    const monthlySaleData = Saleanalysis({ SaleRecords: getsalesdata });
-    const todayDate = (DateAndTime()).date
 
-const todayIncome = Saleanalysis({SaleRecords:getsalesdata,specificDate:todayDate})
-    dispatch(setTodayIncome(todayIncome))
-    dispatch(setMonthlySaleData(monthlySaleData));
-  }
-}, [getsalesdata]);
 
-  
-//  if (!theme) return null;
+if (loadingFetchData) {
+  return <SplashScreen />
+}
   return (
-    <>
-      {/* <View style={{width:'100%',height:40,}} /> */}
-    <StatusBar
-  backgroundColor={background}
-  barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
-/> 
+    <> 
       <Stack.Navigator screenOptions={{headerStyle:{backgroundColor:background},headerTintColor:textColor}}> 
         <Stack.Screen options={{headerShown:false}} name='Home' component={Home} />
         <Stack.Screen  name='TotalProduct' component={TotalProduct} />

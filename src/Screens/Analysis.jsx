@@ -11,7 +11,7 @@ export default function Analysis() {
   const [sweetchButtonActive,setSweetchButtonActive] = React.useState('Sale')
  
   return (
-    <ScrollContainer style={{gap:6}}>
+    <ScrollContainer style={{gap:6,paddingTop:40}}>
     <SweetchButton isActive={sweetchButtonActive} setActive={setSweetchButtonActive} />
      {
        sweetchButtonActive == 'Sale' ?

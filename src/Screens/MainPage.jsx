@@ -1,5 +1,5 @@
 import { View, Text, Image, Modal, TouchableOpacity, Alert,useAnimatedValue,Dimensions,Animated,StyleSheet,PanResponder,ActivityIndicator} from 'react-native'
-import React, { useState,useContext,useRef,useEffect } from 'react'
+import React, { useState,useContext,useRef,useEffect,useMemo } from 'react'
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import Colors from '../Colors';
 import ScrollContainer from '../component/ScrollContainer';
@@ -23,7 +23,12 @@ export default function MainPage() {
   const {themes,localUserData} = useContext(ProductContext) 
   const router = useNavigation(); 
   const [openDragableModel, setOpenDragableModel] = useState(false) 
-   const TotalSaleIncome = SaleRecords?.reduce((prev,next)=> prev + Number(next?.totalIncome),0)
+  
+   const TotalSaleIncome = useMemo(()=>{
+     return  SaleRecords?.reduce((prev,next)=> prev + Number(next?.totalIncome),0)
+   },[SaleRecords])
+   
+  
    
    const [showPoupup, setShowpopup] = useState(true)
  const [loading,setLoading] = useState(false)
@@ -36,7 +41,7 @@ if (!themes) return null;
          
       </DragableModel>
       {/* Heder Styles */}
-      <View style={{ elevation: 5, flexDirection: "row", justifyContent: 'space-between', width: '100%', backgroundColor:themes.theme.backgroundTheme, alignItems: 'center', paddingHorizontal: 15,paddingVertical:4}}>
+      <View style={{ elevation: 5, flexDirection: "row", justifyContent: 'space-between', width: '100%', backgroundColor:themes.theme.backgroundTheme, alignItems: 'center', paddingHorizontal: 15,paddingVertical:4,paddingTop:40}}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Image style={{ width: 45, height: 45, resizeMode: 'cover' }} source={require('../assetes/logo.png')} />
           <View >
@@ -71,11 +76,11 @@ if (!themes) return null;
         <MainScreenCharts   TotalSaleIncome={TotalSaleIncome} />
         
         <View style={{ marginTop: 30, flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'start' }}>
-          <ProductModelData onPress={()=> router.navigate('TotalProduct')} percentChange={5} quantity={itemsRecords?.length} icons={<Ionicons name="cube" size={25} color={Colors.mainColor} />} header="Total Products" />
-          <ProductModelData percentChange={65}  quantity={productCategory?.length} icons={<Octicons name="apps" size={23} color={Colors.mainColor} />} header="Product Category" />
-          <ProductModelData percentChange={-23}  onPress={()=> router.navigate('TotalSold')} quantity={SaleRecords?.length} icons={<Ionicons name="receipt-sharp" size={25} color={Colors.mainColor} />} header="Total Sold" date={SaleRecords[0]?.date}/>
-          <ProductModelData onPress={()=>router.navigate('ProductCategry')}  percentChange={todayIncome?.todayPercentChange}  quantity={todayIncome.todayIncome} icons={<MaterialIcons name="currency-rupee" size={25} color={Colors.mainColor} />} header="Today income" date={SaleRecords[0]?.date} />
-          <ProductModelData percentChange={monthlySaleData?.percentChange}  quantity={monthlySaleData?.totalIncome} icons={<MaterialIcons name="currency-rupee" size={25} color={Colors.mainColor} />} header="Monthly income" date={SaleRecords[0]?.date} />
+          <ProductModelData onPress={()=> router.navigate('TotalProduct')} percentChange={5} quantity={itemsRecords?.length || 0} icons={<Ionicons name="cube" size={25} color={Colors.mainColor} />} header="Total Products" />
+          <ProductModelData percentChange={65}  quantity={productCategory?.length || 0} icons={<Octicons name="apps" size={23} color={Colors.mainColor} />} header="Product Category" />
+          <ProductModelData percentChange={-23}  onPress={()=> router.navigate('TotalSold')} quantity={SaleRecords?.length || 0} icons={<Ionicons name="receipt-sharp" size={25} color={Colors.mainColor} />} header="Total Sold" date={SaleRecords[0]?.date}/>
+          <ProductModelData onPress={()=>router.navigate('ProductCategry')}  percentChange={todayIncome?.todayPercentChange}  quantity={todayIncome.todayIncome || 0} icons={<MaterialIcons name="currency-rupee" size={25} color={Colors.mainColor} />} header="Today income" date={SaleRecords[0]?.date} />
+          <ProductModelData percentChange={monthlySaleData?.percentChange}  quantity={monthlySaleData?.totalIncome || 0} icons={<MaterialIcons name="currency-rupee" size={25} color={Colors.mainColor} />} header="Monthly income" date={SaleRecords[0]?.date} />
         </View>
       </ScrollContainer>
     </>
