@@ -11,6 +11,8 @@ import ViewSaleBillDetails from './Screens/Home/ViewSaleBillDetails'
 import UserBankingDetails from './Screens/Home/UserBankingDetails'
 import CustomerDetails from './Screens/Ledger/customer_details'
 import Customer_manage_payment from './Screens/Ledger/Customer_manage_payment'
+import CustomerLadgerTransaction from './Screens/Ledger/customer_ladger_transaction'
+
 import Toast from 'react-native-toast-message'
 import { useDispatch,useSelector } from "react-redux";
 import {getProducts,getSales,dbConnection} from './Storage/Database' 
@@ -135,6 +137,7 @@ if (loadingFetchData) {
         <Stack.Screen  name='UserBankingDetails' component={UserBankingDetails} />
         <Stack.Screen  name='CustomerDetails' component={CustomerDetails} />
         <Stack.Screen  name='Customer_manage_payment' component={Customer_manage_payment} />
+        <Stack.Screen  name='Customer_ladger_transaction' component={CustomerLadgerTransaction} />
 
       </Stack.Navigator>
       

@@ -54,10 +54,14 @@ const DeleteCustomersHandler = async ()=>{
     const db = await dbConnection()
     const deleteCustomer = await db.runAsync("DELETE FROM users WHERE id = ? ",[customer_id])
     dispatch(deleteCustomers(customer_id))
+    
+    await db.runAsync("DELETE FROM users_transaction WHERE user_id = ? ",[customer_id])
     navigations.pop(2)
-
+console.log(deleteCustomer)
   } catch (e) {
     console.log(e)
+     navigations.pop(2)
+      Toast.show({type:'error',text1:e.message})
   }
 } 
   return (

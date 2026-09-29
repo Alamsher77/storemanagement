@@ -19,10 +19,11 @@ import Text_Content from '../component/Text_Content'
  import DateAndTime from '../dateAndTime'
  import migrateDB from '../Utils/migrateDb'
  import AnimatedButton from '../component/Button'
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect,useNavigation} from '@react-navigation/native';
 const PressableAnimation = Animated.createAnimatedComponent(Pressable)
  const LinearGradientAnimated = Animated.createAnimatedComponent(LinearGradient)
 const Ledger = ()=>{
+  const navigation = useNavigation()
 const dispatch = useDispatch()
 const {customers} = useSelector((state)=> state.customers) 
 const [searchCustomer,setSeachCustomer] = useState([])
@@ -63,7 +64,7 @@ const overlayAnimationStyle = useAnimatedStyle(()=>({
   top:changePosition.value
 }))
 
-const [filterActive,setFilterActive] = useState('') 
+const [filterActive,setFilterActive] = useState(null) 
 const [openDragableModel,setOpenDragableModel] = useState(false) 
 
 
@@ -125,7 +126,9 @@ try {
 // laod user by filtring and render ones
 useFocusEffect(
     useCallback(() => {
-      loadUsers() 
+      if (!filterActive) {
+        loadUsers()
+      }
     },[customers])
   );
 const loadUsers = async ()=>{
@@ -308,6 +311,12 @@ return (
    style={{width:50,height:50,backgroundColor:'rgba(100,180,0,1)',position:'absolute',bottom:20,right:20,borderRadius:12,borderWidth:1,borderColor:themes.theme.color,elevation:6,shadowColor:themes.theme.color,justifyContent:'center',alignItems:'center'}}
   >
    <MaterialIcons size={27} color="#fff" name="person-add" />
+  </Pressable>
+  <Pressable 
+  onPress={()=>navigation.navigate("Customer_ladger_transaction")}
+   style={{width:50,height:50,backgroundColor:Colors.mainColor,position:'absolute',bottom:75,right:20,borderRadius:12,borderWidth:1,borderColor:themes.theme.color,elevation:6,shadowColor:themes.theme.color,justifyContent:'center',alignItems:'center'}}
+  >
+   <MaterialIcons size={27} color="#fff" name="receipt" />
   </Pressable>
   
   
