@@ -8,7 +8,9 @@ import {
   StyleSheet,
 } from "react-native";
 
-export default function AnimatedButton({ title = "Click Me", onPress,bgColor,color,style,disabled }) {
+export default function AnimatedButton({ title = "Click Me", onPress,bgColor,color,style,disabled ,isIcon,children,
+textStyle
+}) {
   const scheme = useColorScheme();
   const isDark = scheme === "dark";
 
@@ -83,10 +85,13 @@ export default function AnimatedButton({ title = "Click Me", onPress,bgColor,col
             },
           ]}
         />
-
-        <Text style={[styles.text, { color: color ? color : textColor }]}>
+       {
+         isIcon ? 
+         children
+         : <Text style={[styles.text, { color: color ? color : textColor },textStyle]}>
           {title}
         </Text>
+       }
       </Animated.View>
     </Pressable>
   );

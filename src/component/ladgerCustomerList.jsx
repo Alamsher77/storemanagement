@@ -56,11 +56,12 @@ const LadgerCustomerList = ({
     style={{
       flexDirection:'row', 
       borderBottomWidth:0.5,
-      borderColor:themes.theme.color,
+      borderColor:themes.theme.borderColor,
       paddingBottom:8,
       width:'100%',
       overflow:'hidden', 
-      justifyContent:'space-between'
+      justifyContent:'space-between',
+      backgroundColor:themes.theme.cardBackground,
     }}>
     <View style={{flexDirection:'row',alignItems:'center',maxWidth:'75%',gap:5}}>
       <LinearGradient 
@@ -102,8 +103,11 @@ const LadgerCustomerList = ({
       
       <View style={{
         justifyContent:'center',  
-        maxWidth:'30%'
+        maxWidth:'30%',
+        flexDirection:"row",
+        alignItems:"center"
       }}>
+      <View>
        <Text 
         style={{
          color: item?.grand_total_due >= 0 ? 'rgba(0,200,0,1)' : themes.mode === "dark" ?  'rgba(200,0,0,1)' :  'rgba(200,0,0,0.6)', 
@@ -112,10 +116,12 @@ const LadgerCustomerList = ({
           {Currency(Math.abs(item?.grand_total_due))}
         </Text>
         <Text  style={{
-         color: '#999', 
+         color:themes.theme.secondaryColor, 
          fontWeight:'900', 
          alignSelf:'flex-end'
          }}>Due</Text>
+         </View>
+      <Feather style={{marginLeft:4}} size={20} color={themes.mainColor} name="chevron-right" />
       </View>
      </TouchableOpacity>
   )
@@ -126,9 +132,9 @@ const LadgerCustomerList = ({
       <View style={{flexDirection:'row',alignItems:'center',gap:4}}>
      {
        icon &&
-        <Feather color={themes.theme.color} name={icon} />
+        <Feather  color={themes.theme.secondaryColor} name={icon} />
      }
-       <Text_Content style={{fontSize:12}}>{text}</Text_Content>
+       <Text_Content style={{fontSize:12,color:themes.theme.secondaryColor}}>{text}</Text_Content>
       </View>
      )
  }

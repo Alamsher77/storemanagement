@@ -13,8 +13,12 @@ export const useColors = () => {
     mainColor: "#e15836ff",
     mode:colorScheme,
     theme: {
-      backgroundTheme: colorScheme === "dark" ? "#000" : "#fff",
-      color: colorScheme === "dark" ? "#fff" : "#666",
+      backgroundTheme: colorScheme === "dark" ? '#0F1115' : '#F7F8FA',
+      color: colorScheme === "dark" ? '#F5F5F5' : '#171717',
+      card:colorScheme === "dark" ? "#222" : "#F2CAC2",
+      secondaryColor:colorScheme === "dark" ? '#A1A1AA' : '#6B7280',
+      cardBackground:colorScheme === "dark" ? '#181B21' : '#FFFFFF',
+      borderColor:colorScheme === "dark" ? '#2A2E35': '#E5E7EB'
     },
   };
 };

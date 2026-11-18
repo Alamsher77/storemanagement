@@ -12,6 +12,7 @@ import UserBankingDetails from './Screens/Home/UserBankingDetails'
 import CustomerDetails from './Screens/Ledger/customer_details'
 import Customer_manage_payment from './Screens/Ledger/Customer_manage_payment'
 import CustomerLadgerTransaction from './Screens/Ledger/customer_ladger_transaction'
+import SearchCustomer from './Screens/Ledger/searchCustomer'
 
 import Toast from 'react-native-toast-message'
 import { useDispatch,useSelector } from "react-redux";
@@ -23,7 +24,7 @@ import Saleanalysis from './analysis'
 import DateAndTime from './dateAndTime'
 import delay from './Utils/delay'
 import Loading from './component/loading'
-import SplashScreen from './page/SplashScreen'
+import SplashScreenMain from './page/SplashScreen'
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Octicons from 'react-native-vector-icons/Octicons';
@@ -39,13 +40,11 @@ export default function StackNavigation() {
   const dispatch = useDispatch();  
   const [loadingFetchData,setLoadingFetchData] = useState(true)
   useEffect(() => {
-    
   const initStoredata = async ()=>{
-    try { 
-      console.time("all")
+    try {
       const [loadData,loadSalesdata,userdata] = await Promise.all(
         [
-          loadProducts(),
+          getProducts(),
           laodSales(),
           loadUsers(),
           MaterialIcons.loadFont(),
@@ -55,8 +54,7 @@ export default function StackNavigation() {
           FontAwesome.loadFont(),
         ]
         ) 
-      console.timeEnd("all")
-      console.time("category ")
+      
         if (loadData.length > 0) {
           const db = await dbConnection()
         const categories = await db.getAllAsync(`
@@ -67,9 +65,7 @@ export default function StackNavigation() {
 `);
     dispatch(setProductCategry(categories));
   }
-      console.timeEnd("category")
-  
-      console.time("analysis")
+      
         if (loadSalesdata.length > 0) {
     const monthlySaleData = Saleanalysis({ SaleRecords: loadSalesdata });
     const todayDate = (DateAndTime()).date
@@ -79,9 +75,6 @@ const todayIncome = Saleanalysis({SaleRecords:loadSalesdata,specificDate:todayDa
     dispatch(setMonthlySaleData(monthlySaleData));
   }
         
-      console.timeEnd("analysis")
-        
-        setLoadingFetchData(false)
         dispatch(setProducts(loadData))
         dispatch(setSale(loadSalesdata))
         dispatch(setCustomers(userdata))
@@ -92,16 +85,15 @@ const todayIncome = Saleanalysis({SaleRecords:loadSalesdata,specificDate:todayDa
         type:'error',
         text1:e.message
       })
+    }finally{
+        setLoadingFetchData(false)
     }
   } 
   initStoredata()
   }, []);
 
-const loadProducts = async () => {
- return  await getProducts();  
-};
  
-const getsalesdata = useSelector((state)=> state.sale.sale)
+
 const laodSales = async ()=>{ 
     const rows = await getSales()
   
@@ -119,12 +111,8 @@ const loadUsers = async ()=>{
   return userdata
 }
 
-
-
-
-
 if (loadingFetchData) {
-  return <SplashScreen />
+  return <SplashScreenMain />
 }
   return (
     <> 
@@ -138,6 +126,7 @@ if (loadingFetchData) {
         <Stack.Screen  name='CustomerDetails' component={CustomerDetails} />
         <Stack.Screen  name='Customer_manage_payment' component={Customer_manage_payment} />
         <Stack.Screen  name='Customer_ladger_transaction' component={CustomerLadgerTransaction} />
+        <Stack.Screen options={{headerShown:false}} name='SearchCustomer' component={SearchCustomer} />
 
       </Stack.Navigator>
       

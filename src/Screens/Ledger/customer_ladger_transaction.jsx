@@ -1,5 +1,5 @@
 import {View,Text,StyleSheet,TouchableOpacity} from "react-native"
-import {useEffect,useState,useContext} from "react"
+import {useEffect,useState,useContext,useMemo} from "react"
  import { useSelector } from "react-redux";
  import {dbConnection} from '../../Storage/Database'
  import translate from "translate";
@@ -14,21 +14,11 @@ export default function CustomerLadgerTransaction() {
   const {themes} = useContext(ProductContext)
   const [allDueTransaction,setAllDueTransaction] = useState([])
   const [customersData,setCustomerData] = useState(null)
+  const [loadingCustomer,setLoadingCustomer] = useState(true)
   const {customers} = useSelector((state)=>state.customers)
   
    
   useEffect(() => {
- const fetchDueTrasaction = async ()=>{
-   try {
-      const db = await dbConnection()
-   const userdata = await db.getAllAsync("SELECT user_id FROM users_transaction"); 
-   console.log(userdata.length)
-   } catch (e) {
-   console.log(e)
-     
-   }
- }
- fetchDueTrasaction()
  const converLanguage = async (changeValue) => {
   try {
     const changeCustomerNameInHindi = await Promise.all(
@@ -44,14 +34,31 @@ export default function CustomerLadgerTransaction() {
     changeCustomerNameInHindi.sort(
   (b, a) => Number(b.grand_total_due) - Number(a.grand_total_due)
 );
+    setLoadingCustomer(false)
     setCustomerData(changeCustomerNameInHindi);
   } catch (e) {
     console.log(e);
+    setLoadingCustomer(false)
   }
 };
  converLanguage()
 }, [])
-  
+  const totalBalanceDue = useMemo(() => {
+  return Math.abs(customers.reduce(
+    (sum, customer) => {
+      
+    const due = Number(customer?.grand_total_due || 0)
+    return due < 0 ? sum + due : sum
+    },0));
+}, [customers]);
+  const totalBalanceDueAdvance = useMemo(() => {
+  return Math.abs(customers.reduce(
+    (sum, customer) => {
+      
+    const due = Number(customer?.grand_total_due || 0)
+    return due > 0 ? sum + due : sum
+    },0));
+}, [customers]);
    const htmlContent = `
   <!DOCTYPE html>
   <html lang="hi">
@@ -94,6 +101,15 @@ export default function CustomerLadgerTransaction() {
   text-align: right;
   font-weight: 600;
 }
+
+.flexContainer {
+  display:flex;
+  flex-direction: column;
+  gap:12px;
+  align-items:flex-end;
+  margin-right:40px;
+  margin-top:40px;
+}
   </style>
   </head>
   <body>
@@ -102,18 +118,22 @@ export default function CustomerLadgerTransaction() {
     <tr>
       <th>Sr. No.</th>
       <th>Customer Name</th>
+      <th>Customer Phone Number</th>
       <th>Due Amount</th>
     </tr>
   </thead>
 
   <tbody>
   ${
-    customersData &&
+    !customersData ?
+    "Loading......."
+    :
     customersData?.map((listItem,index)=>{
       return(
       `<tr>
       <td>${index+1}</td>
       <td>${listItem.name}</td>
+      <td>${listItem.phone ? listItem.phone : "फोन नंबर नहीं है"}</td>
       <td>₹${listItem.grand_total_due < 0 ? Math.abs(listItem.grand_total_due) : -listItem.grand_total_due}</td>
     </tr>`
       )
@@ -121,6 +141,10 @@ export default function CustomerLadgerTransaction() {
   }
   </tbody>
 </table>
+  <div class="flexContainer">
+  <p>कुल अग्रिम राशि = ${totalBalanceDueAdvance}</p>
+  <p>कुल बकाया राशि = ${totalBalanceDue}</p>
+  </div>
   </body>
   </html>
   `
@@ -147,7 +171,7 @@ export default function CustomerLadgerTransaction() {
   }
   return (
     <>
-    <WebView style={{flex:0.80}} source={{html:htmlContent,baseUrl:''}} /> 
+    <WebView style={{flex:1}} source={{html:htmlContent,baseUrl:''}} /> 
      <View style={[styles.printcontainer,{backgroundColor:themes.theme.backgroundTheme,paddingVertical:8,paddingBottom:20
        }]}>
             <TouchableOpacity  style={[styles.printitems,{backgroundColor:themes.mainColor,shadowColor:themes.theme.color,borderColor:themes.theme.color}]}>

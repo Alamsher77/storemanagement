@@ -1,6 +1,6 @@
 import { View, Text, Image, useAnimatedValue, Animated } from 'react-native'
 import React, { useEffect } from 'react' 
-export default function SplashScreen() { 
+export default function SplashScreenMain() { 
     const scale = useAnimatedValue(0);
     const opacity = useAnimatedValue(1);
     useEffect(() => {

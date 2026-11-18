@@ -41,7 +41,6 @@ navigations.pop(2)
   console.log(e)
 }
 }
-
 const DeleteCustomersHandler = async ()=>{
     const status = await Conformation('⚠️ Deleted ','Are you sure you want to Delete Customer !!') 
    if(!status) return false

@@ -27,6 +27,7 @@ import { Provider, } from 'react-redux'
 import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
+
 export default function App() {
  useEffect(() => {
    async function checkUpdate() {
